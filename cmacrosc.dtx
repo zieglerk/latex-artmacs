@@ -1,0 +1,1038 @@
+% \iffalse meta-comment
+%
+% Copyright (C) 2008 by Konstantin Ziegler <konstantin.ziegler@landshut.org>
+% --------------------------------------------------------------------------
+% 
+% This file may be distributed and/or modified under the conditions of
+% the LaTeX Project Public License, either version 1.3c of this license
+% or (at your option) any later version. The latest version of this
+% license is in:
+% 
+% http://www.latex-project.org/lppl.txt
+% 
+% and version 1.3c or later is part of all distributions of LaTeX
+% version 2006/05/20 or later.
+% 
+% \fi
+% 
+% \iffalse
+%<*driver>
+\ProvidesFile{cmacrosc.dtx}
+%</driver>
+%<package>\NeedsTeXFormat{LaTeX2e}[2003/12/01]
+%<package>\ProvidesPackage{cmacrosc}
+%<*package>
+  [2011/11/22 v0.2.3 added allowdisplaybreaks]
+%</package>
+%
+%<*driver>
+\documentclass{ltxdoc}
+\EnableCrossrefs
+\CodelineIndex
+\RecordChanges
+\begin{document}
+  \DocInput{cmacrosc.dtx}
+  \PrintChanges
+  \PrintIndex
+\end{document}
+%</driver>
+% \fi \CheckSum{0}
+%
+% \CharacterTable {Upper-case
+%   \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z Lower-case
+%   \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z Digits
+%   \0\1\2\3\4\5\6\7\8\9 Exclamation \!  Double quote \" Hash (number)
+%   \# Dollar \$ Percent \% Ampersand \& Acute accent \' Left paren \(
+%   Right paren \) Asterisk \* Plus \+ Comma \, Minus \- Point \.
+%   Solidus \/ Colon \: Semicolon \; Less than \< Equals \= Greater
+%   than \> Question mark \?
+%   Commercial at \@     Left bracket  \[     Backslash     \\
+%   Right bracket \] Circumflex \^ Underscore \_ Grave accent \` Left
+%   brace \{ Vertical bar \| Right brace \} Tilde \~}
+%
+% \changes{v0.1}{2009/08/08}{initial version}
+% \changes{v0.2.2}{2010/02/14}{collection of frequently used macros and packages}
+% \changes{v0.2.3}{2011/11/22}{added allowdisplaybreaks}
+%
+% \GetFileInfo{cmacrosc.dtx}
+% 
+% \DoNotIndex{\newcommand,\newenvironment}
+%
+% \title{The \textsf{cmacrosc} package\thanks{This document
+%     corresponds to \textsf{cmacrosc}~\fileversion, dated
+%     \filedate.}}  \author{Konstantin Ziegler \\
+%   \texttt{konstantin.ziegler@landshut.org}}
+%
+% \maketitle
+%
+% \tableofcontents
+%
+% \section{ToDo}
+% 
+% take from latex--c.org, whatever you can.  take from latex.tex,
+% whatever you can.
+%
+% \section{Introduction and Outline}
+%  
+% - Im besten Fall herrscht Kompatibilitaet mit LaTeX und
+% pdfLaTeX. Die Machbarkeit ist im Einzelfall (insbesondere fuer
+% PSTricks) aber noch zu ueberpruefen.  - sty-Dateien muessen im
+% gleichen Verzeichnis wie die Datei liegen, die sie benutzen -- oder
+% im lokalen texmf-Verzeichnis. In letztem Fall darf aber das
+% Aktualisieren der Datenbank nicht vergessen werden.
+%
+% \section{Structure}
+%
+% We need to talk about
+% \begin{itemize}
+% \item options for the documentclass
+% \item packages loaded by this cmacrosc.sty
+% \item newly defined commands/environments etc
+% \item optional packages with description
+% \item Advice on the preamble
+% \item Advice on the top matter information
+% \item Hints and Guidelines for typesetting text
+% \item Usage of the math environment
+% \item Usage of BibTeX
+% \end{itemize}
+%
+% \section{Options for the Documentclass}
+% 
+% \subsection{a4paper}
+% \DescribeMacro{a4paper} CAVE: l2tabu warns about the outdated
+% |a4.sty| (with the outdated option |widemargin|) and |a4wide.sty|.
+
+% \subsection{a5paper}
+% \label{sec:a5paper}
+
+% The document gets typeset in |a5paper| layout, but depending on your
+% TeX-Installation may still be printed on a4paper -- resulting in lots of white
+% space on the lower and right edge.  This is resolved by usage of a package
+% that employs the necessary |\special| commands to tell the driver which page
+% format is actually to be used: |geometry| and |hyperref| can do that.  (They
+% inherit the global option.)
+
+% \subsection{twoside}
+% \label{sec:twoside}
+
+% is default for any standard class except article.
+
+%
+% \section{Optional Packages with Description}
+%
+% \subsection{geometry.sty}
+% \DescribeMacro{geometry.sty} to change the page layout.
+%
+% CAVE: l2tabu advises you to keep your hands of |margin.sty| or
+% |\oddsidemargin|, |\hoffset|, |\voffset|, etc.
+%
+% \subsection{setspace.sty}
+% \DescribeMacro{setspace.sty} to change the line spacing.
+% 
+% CAVE: l2tabu warns about |\linespread{<factor>}| or
+% |\renewcommand{\baselinestretch}{<factor>}|.  CAVE: l2tabu warns
+% about |setspace.sty|
+%
+% \subsection{fancyhdr.sty}
+% \DescribeMacro{fancyhdr.sty} l2tabu: |fancyhdr.sty| instead of
+% |fancyheadings.sty|
+% \section{Optional Commands in the Preamble}
+%
+% \subsection{Signatures for Quotes}
+% 
+% \begin{macro}{\signed}
+%   To sign codes or the like, command |\signed| puts the author
+%   emphasized in the lower right corner.  On the last line if there
+%   is enough space, on a new line if it is not.
+%    \begin{macrocode}
+\newcommand*{\signed}[1]%
+{\unskip\hspace*{1em plus 1fill}%
+  \nolinebreak[3]\hspace*{\fill}\mbox{\emph{#1}}}
+%    \end{macrocode}
+% The code is taken from Hack \# 6 of LaTeXHacks. Basically
+% |\hspace*{\fill}\mbox{\emph{#1}}| already does the trick to typeset
+% the author right-aligned.  The |\nolinebreak[3]| is necessary to
+% tell \LaTeX\ that we do not want a linebreak unless necessary.  This
+% is almost it -- besides the problem, that if there is a linebreak
+% now, the old line gets stretched to fill the complete space, since
+% the original |\parfillskip| was overruled.  We replace it with
+% |\hspace*{1em plus 1fill}|.  Finally, we add |\unskip| to make
+% |bla. \signed{author}| and |bla.\signed{author}| look the same.
+% \end{macro}
+
+
+% \subsection{Paragraph indentation and Line skip}
+% 
+% \DescribeMacro{\parindent} \DescribeMacro{\parskip}
+% \DescribeMacro{parskip.sty} Usage: |\setlength{\parindent}{1em}|
+%
+% CAVE: l2tabu advises to use font-dependent lengths (1em) instead of
+% absolute lengths(1em).  Using \TeX-syntax |\parindent=1em| is
+% discouraged.
+%
+% \section{Packages Loaded by cmacros.sty}
+%
+% \subsection{Language, Fonts and Layout}
+%
+% \DescribeMacro{babel} make english default, but be able to switch to
+% german by ???|\selectlanguage|???
+%    \begin{macrocode}
+\RequirePackage[ngerman, english]{babel}
+%    \end{macrocode}
+%
+% \DescribeMacro{fontenc} l2tabu: Do not use |fontenc.sty| for that.
+%    \begin{macrocode}
+\RequirePackage[T1]{fontenc}
+%    \end{macrocode}
+%
+% \DescribeMacro{txfonts.sty} 
+% \DescribeMacro{pxfonts.sty} 
+% Maybe some sort of times roman, but discouraged for its lack of support for
+% amsmath. (according to mathtools.pdf)  Same goes for |pxfonts|.
+%
+% \DescribeMacro{url} Typessetting URLs, email addresses and
+% directories/paths
+%    \begin{macrocode}
+\RequirePackage{url} \DeclareUrlCommand\email{\urlstyle{tt}}
+\DeclareUrlCommand\directory{\urlstyle{tt}}
+%    \end{macrocode}
+%
+% \subsection{develop, draft and edit}
+%
+% \DescribeMacro{todonotes} allows todo-marks with |\todo[]{}| and a
+% list of todos with |\listoftodos|, switched off by global option
+% |disable|.
+%    \begin{macrocode}
+\RequirePackage[linecolor=black,backgroundcolor=white,textsize=tiny,textwidth=2.5\marginparwidth]{todonotes}
+%    \end{macrocode}
+% Using |\url| or |\verb| in todonotes requires |\protect|.
+%
+% In case the todonotes package breaks again, the following two lines
+% neutralize its commands:
+% \begin{verbatim}
+% \newcommand{\todo}[1]{}
+% \newcommand{\listoftodos}{}
+% \end{verbatim}
+% Alternatively, try the package |todo|, which requires fewer other
+% packages, but seems incompatible with the environments of the
+% cc-class.  How to switch it off?  Process all todos? -- Does an
+% empty list occur?
+%
+%\begin{macro}{endnotes}
+%We want to have the reference calculations done at the proper place, but
+%listed at the end -- as endnotes.
+%    \begin{macrocode}
+\RequirePackage{endnotes}
+\renewcommand{\notesname}{Reference Calculations}
+%    \end{macrocode}
+% Endnotes are produced like footnotes with |\endnote{NOTE}| and their list is
+% compiled by |\theendnotes|.  Remark: The documentation for this package is
+% in the style-file.  CAVE: footnotes can not make use of
+% |\verb|.  Proceed with |\protect|.  (Is this fixed by the verbatim package?)
+% We also looked at several comparable packages:
+% \begin{itemize}
+% \item endnote.sty: generic package, does not scale well.
+% \item fn2end.sty: seems fine, but old (1995) and problems if brackets don't match as in |\left{ ... \right.|.
+% \item edmargin.sty: wahrscheinlich ein overkill
+% \end{itemize}
+% \end{macro}
+%
+% \DescribeMacro{showkeys} Modifies |\label|, |\ref|, |\pageref|, |\cite| and |\bibitem| to show the internal keys.
+%    \begin{macrocode}
+\RequirePackage{showkeys}
+%    \end{macrocode}
+% Switch off by global option |final|.  (Default is option |draft|.)
+% Note: |showlabels.sty| is similar, but shows the labels inline, affecting the formating.  |showkeys.sty| by Anonymous, dated 14 May 1988 is very similar.
+%
+% \begin{macro}{refcheck}
+% looks for useless labels, unlabelled equations, unused bibliography and puts keys of labels in the margin. (Todo: Find out how this works with the also loaded |showkeys|).
+%    \begin{macrocode}
+%\RequirePackage{refcheck}
+%    \end{macrocode}
+% Switch off printing by option |norefs|.  (Default is |showrefs|.)
+% Useless labels are underlined and bounded by `?`.  The mark '\{?\}' means that the equation is unlabelled.  Marks are framed for labels used in the text.
+% The same goes for the bibliography.  Switching off the behavior there by the option |nocites|.  (Default is |showcites|.)
+% Checking for unlabelled equations can be switched off by |ignoreunlbld|.  (Default is |chkunlbld|.)
+% Note:  |refcheck| works with AMS-\LaTeX\ and |hyperref|, but they have to be
+% loaded \emph{before}.  (Todo: Do this.)
+% Status:  Put on hold, since mathtools seems to make it unnecessary to check
+% for unreferenced labels.
+% \end{macro}
+% 
+% \DescribeMacro{prelim2e} Puts date and time under a draft.
+%    \begin{macrocode}
+\RequirePackage[scrtime]{prelim2e}
+%    \end{macrocode}
+% where the option |scrtime| of the koma-script package computes the
+% time.  The option |draft| is default, the option |final| produces no
+% output
+%    \begin{macrocode}
+\renewcommand{\PrelimWords}{Draft (\jobname)}
+%    \end{macrocode}
+% changes the text from the default "Preliminary version" to "Draft".
+% \changes{v0.2.1}{2010/01/29}{added jobname}
+%
+% \subsection{AMS environments}
+%
+% \DescribeMacro{amsmath, amsthm}
+%    \begin{macrocode}
+\RequirePackage{amsmath, amsthm}
+\RequirePackage{aliascnt}
+%    \end{macrocode}
+% theorems and equations share the same counter; to make it include
+% the section number we specify:
+%    \begin{macrocode}
+\numberwithin{equation}{section}
+
+\theoremstyle{plain} 
+
+\newaliascnt{corollary}{equation}
+\newtheorem{corollary}[corollary]{Corollary}
+\aliascntresetthe{corollary}
+\newcommand{\corollaryautorefname}{Corollary}
+
+\newaliascnt{theorem}{equation}
+\newtheorem{theorem}[theorem]{Theorem}
+\aliascntresetthe{theorem}
+\newcommand{\theoremautorefname}{Theorem}
+
+\newaliascnt{lemma}{equation}
+\newtheorem{lemma}[lemma]{Lemma}
+\aliascntresetthe{lemma}
+\newcommand{\lemmaautorefname}{Lemma}
+
+\newaliascnt{proposition}{equation}
+\newtheorem{proposition}[proposition]{Proposition}
+\aliascntresetthe{proposition}
+\newcommand{\propositionautorefname}{Proposition}
+
+\newaliascnt{conjecture}{equation}
+\newtheorem{conjecture}[conjecture]{Conjecture}
+\aliascntresetthe{conjecture}
+\newcommand{\conjectureautorefname}{Conjecture}
+
+\newaliascnt{fact}{equation}
+\newtheorem{fact}[fact]{Fact}
+\aliascntresetthe{fact}
+\newcommand{\factautorefname}{Fact}
+
+\theoremstyle{definition}
+\newaliascnt{definition}{equation}
+\newtheorem{definition}[definition]{Definition}
+\aliascntresetthe{definition}
+\newcommand{\definitionautorefname}{Definition}
+
+\newaliascnt{example}{equation}
+\newtheorem{example}[example]{Example}
+\aliascntresetthe{example}
+\newcommand{\exampleautorefname}{Example}
+
+\newaliascnt{problem}{equation}
+\newtheorem{problem}[problem]{Problem}
+\aliascntresetthe{problem}
+\newcommand{\problemautorefname}{Problem}
+
+\newaliascnt{exercise}{equation}
+\newtheorem{exercise}[exercise]{Exercise}
+\aliascntresetthe{exercise}
+\newcommand{\exerciseautorefname}{Exercise}
+
+\theoremstyle{remark} 
+
+\newaliascnt{remark}{equation}
+\newtheorem{remark}[remark]{Remark}
+\aliascntresetthe{remark}
+\newcommand{\remarkautorefname}{Remark}
+
+\newaliascnt{answer}{equation}
+\newtheorem{answer}[answer]{Answer}
+\aliascntresetthe{answer}
+\newcommand{\answerautorefname}{Answer}
+
+\newaliascnt{question}{equation}
+\newtheorem{question}[question]{Question}
+\aliascntresetthe{question}
+\newcommand{\questionautorefname}{Question}
+
+\newaliascnt{openquestion}{equation}
+\newtheorem{openquestion}[openquestion]{Open question}
+\aliascntresetthe{openquestion}
+\newcommand{\openquestionautorefname}{Open question}
+
+\newaliascnt{Warning}{equation}
+\newtheorem{Warning}[Warning]{Warning}
+\aliascntresetthe{Warning}
+\newcommand{\Warningautorefname}{Warning}
+
+\addto\extrasenglish{%
+\def\sectionautorefname{Section}%
+}
+
+%    \end{macrocode}
+% We have to be careful, while defining theorem-like environments, since they
+% are also predefined by some packages and classes.  For example beamer and
+% llncs.  The first uses |note| to place annotations between slides.  To avoid
+% clashes we omit |note|.  It is a TODO to make our list MECE.  Right now,
+% there are too many.
+% \begin{macro}{thmtools.sty}
+% collection of tools and enhancements for theorem environments
+%    \begin{macrocode}
+\RequirePackage{thmtools}
+%    \end{macrocode}
+% The package |thm-autoref| of this bundle is supposed to fix |hyperref|'s
+% problems for the |\autoref| command, when different theorem-style
+% environments share the same counter.  The fix with |aliascnt| seems
+% necessary and sufficient.
+%
+% The version on CTAN is outdated.  Get the current version from
+% |http://www.absatzen.de/thmtools.html|
+%
+% Not necessary.
+% \end{macro}
+%
+% We allow page breaks in multiline displays by
+%    \begin{macrocode}
+\allowdisplaybreaks[4]
+%    \end{macrocode}
+% The command |\\*| can be used to prohibit a pagebreak after a given line.  Note: Certain environments wrap their contents in an unbreakable box, prohibiting that effect.  These include |split|, |aligned|, |gathered|, and |alignedat|.
+%
+% \subsection{mathtools.sty as extension to amsmath}
+%
+%\begin{macro}{mathtools.sty}
+%Remark:  |amsmath| should already be loaded at this point -- otherwise
+%|mathtools| will do so.  Loading |amsmath| afterwards is not necessary -- and
+%probably a bad idea.
+%
+%An extension to amsmath providing some bug fixes and also some features.  It
+%therefore requires |amsmath| -- and would load it if not already done.  It
+%also passes its options to |amsmath|.
+%    \begin{macrocode}
+\RequirePackage{mathtools}
+\mathtoolsset{showonlyrefs, showmanualtags}
+%    \end{macrocode}
+% Per default, two options are set, namely |fixamsmath| to fix two bugs in amsmath and |disallowspaces| to prevent a first line in an equation starting with |[p]| to be interpreted as optional argument to the environment.
+
+% Two commands for better typesetting of operators: |\smashoperator{<op>}| ignores the width of the subscript of an operator.  |\adjustlimits <op1>_<limit1> <op2>_<limit2>| aligns the limits of consecutive operators (when the heights differ).
+
+%The option |showonlyrefs| shows only labels for referenced equations, but you have to use |eqref|.  While |showmanualtags| shows the labels specified by |\tag| or
+%|\tag*|.  (If you do not show them, then why would you define them?!)  If
+%want to finally add some equations, which are not referenced use
+%|\noeqref{label1, label2, ...| analogously to |\nocite|.  Unfortunately, this |showonlyrefs| introduces two bugs: First, the formula might be set ``across'' the equation number (because it is initially not present, when the equation is typeset).  Second, conflicts with the |ntheorem| package.  The easist fix is |\usepackage[overload,ntheorem]{empheq}| before loading |ntheorem|, but we don't need that, since we don't use |ntheorem|.
+
+% The standard implementations for |\underbrace| and |\overbrace| have some deficiencies: all lengths are fixed and optimized for 10 pt typesetting.  |mathtoolsset| redefines them and also adds |\underbracket| and |\overbracket|.
+
+%  This package also adds more extensible arrows to the ones already in the
+%  |amsmath| package, like |\xRightarrow[sub]{sup}| or |\xmapsto[sub]{sup}|.
+
+%  Starred versions of the matrix environments (matrix, pmatrix, bmatrix, Bmatrix, vmatrix, Vmatrix), are available, like
+%  |\begin{pmatrix*}[col]...\end{pmatrix*}| where the one optional argument
+%  |col| specifies the alignment of the columns.  Default is |c|, but
+%  sometimes |r| might be nicer.
+
+% |mathtools| provides the command |\vcentcolon| for a vertically centered colon before an equal sign.  Such a symbol is also provided by |\coloneqq| from the packages |txfonts| and |pxfonts|, but with tighter spacing.  Also, these packages lack the support for |amsmath| and the side-bearings are way too tight.
+
+% Furthermore, |mathtools| provides the missing symbol |\bigtimes|.
+
+% Quite handy are the two environments |cases*| and |dcases*|, where the starred version typesets the second column in the normal roman font of the document (more precisely it inherits the font characteristics before the cases environment).  This spares the repeated use of |\text{...}|.  The |dcases*| (and also |dcases|) environment display the rows in display- rather than inline-style, i.e. larger.
+
+% |\boxed| generates a box in math mode, but this does not work across alignment points.  For this use, |mathtools| defines |\Aboxed{<left> & <right>}|.
+
+% For vertical lines in |align| environments, use a line like |  & \vdotswithin{=} \\| or simply |\shortvdotswithin{=}|.
+
+% |\intertext| gets the little brother |\shortintertext{<text>}| using less excessive spacing.
+
+% Introduces |\DeclarePairedDelimiter| for maximal flexibility when defining |\abs|, etc.  Then you can use |\abs*| for the variant with |\left| and |\right| and |\abs[\Bigg]| for, well, the correspondingly modified version.
+
+%\DescribeMacro{\prescript}
+%Usage |\prescript{sup}{sub}{arg}| to typeset chemical elements and generally put indices or exponents on the left of a symbol . Example |\prescript{14}{2}{C}_{2}^{5+}|.
+%\end{macro}
+%
+%
+% \subsection{Cross-references with hyperref.sty}
+%
+%\begin{macro}{hyperref.sty}
+% The hyperref package extends the functionality of the \LaTeX\
+% cross-referencing commands to produce commands which a driver can turn into
+% hypertext links; it also provedes new commands to allow the user to write
+% hypertext links to external documents and URLs.
+%    \begin{macrocode}
+\RequirePackage[dvips, ps2pdf, pdfpagelabels=false, pdfborder={0 0 0}, final]{hyperref}
+% \RequirePackage{thm-autoref}
+%    \end{macrocode}
+% The optional argument loads the necessary drivers for the different formats.
+% Remark: Should be loaded as late as possible since its job is to redefine
+% many \LaTeX\ commands.  There used to be issues with the |showkeys| package which required the option |implicit=false|, but thereby messing up |\autoref|.  These issues seem to be fixed since v6.76g.  The remaining issue is an |ERROR: Argument of \hyper@anchorstart has an extra }| in the .bbl when compiling in draft mode (where all hypertext options should be turned off anyways).  We circumvent that by explicitly setting the option |final|.  Note: that this is surprising, because the natbib package that we use is recommended for use with hyperref.
+% Further options:
+%  \begin{tabular}{ll}
+%    |draft| & all hypertext options turned off \\
+%    |final| (default) & all hypertext options turned on \\
+%    |a4paper| (default) & paper size 210 mm x 297 mm
+%  \end{tabular}
+% You may also define the colors for links and explicitely the pdf document
+% information.
+%
+% The following additional user macros are defined: \DescribeMacro{\href} -
+% syntax: |\href{URL}{text}|.  \DescribeMacro{\url} \DescribeMacro{\nolinkurl}
+% -syntax: |\url{URL}| or |\nolinkurl{URL}| to typeset as URL without creating
+% a hyperlink.  \DescribeMacro{\autoref} syntax: |\autoref{label}| places a
+% contextual label in front of the reference.  Remark: |\autoref| works via
+% the counter name that the reference is based on.  This fails, if e.g. a
+% lemma and a theorem share the same counter.
+%
+% This can be fixed by the package |aliascnt|.  But we will fix it more easily
+% with |thmtools|.
+%
+% \DescribeMacro{\autopageref}
+% syntax: |\autopageref{label}| adds the name for page in front of the page
+% number.
+%
+% Macros like |\ref|, |\pageref|, |\autoref| and |\autopageref| also exist in
+% starred versions, where no hyperlink is generated.
+% 
+% Alternative: |cleveref.sty| with the commands |\cref{<label>}| or
+% |\cref{<label>, ...}| and equivalently |\Cref{<label>}|.  This is more
+% costumizable and has features to sort and handle several references in one
+% instance.  We keep a close watch on it.
+% \end{macro}
+%
+% \subsection{Citations with natbib.sty}
+%
+%\begin{macro}{natbib.sty}
+%    \begin{macrocode}
+\RequirePackage[round]{natbib}
+%    \end{macrocode}
+%The document begins with
+%\begin{verbatim}
+%\begin{document}
+%\bibliographystyle{plainnat}
+%\end{verbatim}
+%though the style can be given anywhere in the document.  
+%
+% Possible citation styles (only listing author-year styles, no numerical ones):
+% \begin{itemize}
+% \item plainnat: square braces, commas
+% \item agu (American Geophysical Union): square braces, semi-colon
+% \item egu (European Geosciences Union): round braces, semi-colon
+% \item agms, deu, kluver (Harvard set): round braces, none
+% \end{itemize}
+%
+% Further package options:
+% \begin{itemize}
+% \item round (brackets)
+% \item square
+% \item semicolon (separator)
+% \item comma
+% \end{itemize}
+%
+% Further options:  The list of references usually appears as |\section*| or
+% |\chapter*|, depending on the class.  If you want to change that, you redefine
+% |\bibsection|.  Redefine |\bibpreamble| if you want to specify a text that is
+% inserted after |\bibsection| and before the actual list.
+%
+%
+% The document ends
+% with
+% \begin{verbatim}
+% \bibliography{mybib} % corresponding to mybyb.bib
+% \end{document}
+% \end{verbatim}
+%
+% Now, two new commands are available 
+% \DescribeMacro{citep}
+% \DescribeMacro{citet}
+% \begin{itemize}
+%   \item |\citep{jon90}| for \emph{parenthetical} citations as (Jones et al.,
+%     1990).
+% \item |\citet{jon90}| for \emph{textual} citations as Jones et al. (1990).
+% \end{itemize}
+% 
+% CAVE: Avoid \LaTeX's standard |\cite| now, since it behaves like |\citet| for
+% auhor-year, but like |\citep| for numerical citations -- and a little wild
+% anyways.
+%
+% Further commands (in author-year mode) are
+% \begin{itemize}
+% \item |\citet[chap.~2]{jon90}|: Jones et al. (1990, chap. 2)
+% \item |\citet[see][]{jon90}|: see Jones et al. (1990)
+% \item |\citet*{jon90}|: Jones, Baker, and Williams (1990)
+% \item |\citet{jon90, jon91}|: Jones et al. (1990, 1991)
+% \item |\citealt = \citet| without parentheses
+% \item |\citeauthor|: Jones et al.
+% \item |\citeyear|: 1990
+% \item |\citeyearpar|: (1990)
+% \item |\citefullauthor = \citeauthor*|: Jones, Baker, and Williams
+% \end{itemize}
+% and of course just the same with |\citep|, when applicable.
+%
+% Use |\Citet| and |\Citeauthor| if you want to enforce Upper Case Names,
+% e.g. Von zur Gathen at the beginning of a sentence.
+%
+% If you want to change the name of the references, the usual
+% |\renewcommand{\bibname}{}| or |\renewcommand{\refname}{}| will not work.
+% Instead we can use the more powerful 
+% |\renewcommand{\bibsection}{\section*{A Complete List of Publications since 2003}}|.
+%
+%\end{macro}
+%
+% \subsection{Macros and Symbols}
+%
+% CAVE: l2tabu advises to use |\newcommand{<name>}{...}| instead of
+% |\def\<name>{...}|, since this yields errors if the command is
+% already defined.
+%
+% \subsubsection{Delimiters}
+%
+% \DescribeMacro{abs, norm, floor, bbracket}
+% Defined using |\DeclarePairedDelimiter| provided by |mathtools|.
+%    \begin{macrocode}
+\DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+\DeclarePairedDelimiter{\floor}{\lfloor}{\rfloor}
+\RequirePackage{stmaryrd}
+\newcommand{\bbracket}[1]{\left\llbracket #1 \right\rrbracket}
+%    \end{macrocode}
+% to denote $\abs{x}$, $\floor{x}$ and $\bbracket{x}$ with |\abs{x}|,
+% |\floor{x}| and |\bbracket{x}|.  The last package also enables $\mapsfrom$
+% by |\mapsfrom|.   TODO how to load the package itself for use within the documentation.
+% \changes{v0.2.1}{2010/01/29}{added bbracket}
+%
+% \subsubsection{physical units}
+%
+% \DescribeMacro{SIunits} Avoid formatting units by hand, better use
+% |$\unit{1,92}{\micro\metre}$|
+%    \begin{macrocode}
+\RequirePackage[amssymb]{SIunits}
+%    \end{macrocode}
+% Remark: the option |amssymb| avoids suppresses the conflict with the
+% named package over the command |\square|.  ??? What about
+% typesetting times and dates ???  At least for the former, there is
+% always the possiblity of |12\textsuperscript{00}| in text mode.
+%
+%
+% \subsubsection{AMS symbols}
+%
+%    \begin{macrocode}
+\RequirePackage{amssymb, amsfonts}
+%    \end{macrocode}
+% (Re)defines symbols.  Most notably \LaTeX's |\Box| is superseded by |\square|.
+%
+% \begin{description}
+% \item[Sets] \DescribeMacro{NN, ZZ, QQ, RR, CC, FF}
+% Is DeclareMathOperator here correct?  Wouldn't newcommand be more appropriate?  It is not only more appropriate.  It is also the only way to produce for example the correct font for |\Fq| and place the |^{\times}| correctly.
+%    \begin{macrocode}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\CC}{\mathbb{C}}
+\newcommand{\FF}{\mathbb{F}}
+\newcommand{\Fp}{\mathbb{F}_{p}}
+\newcommand{\Fpx}{\mathbb{F}_{p}^{\times}}
+\newcommand{\Fq}{\mathbb{F}_{q}}
+\newcommand{\Fqx}{\mathbb{F}_{q}^{\times}}
+%    \end{macrocode}
+% Already defined |\PP| as |\mathbb{P}| for the projective P, but
+% unfortunately |\AA| defined as some Angstrom \AA.
+% \item[Operators] \DescribeMacro{im, codim}
+% functions on sets or functions
+%    \begin{macrocode}
+\DeclareMathOperator{\im}{im} 
+\DeclareMathOperator{\codim}{codim}
+\newcommand{\id}{id}
+%    \end{macrocode}
+% \item[Functors] \DescribeMacro{Gal}
+% in the categorical sense, i.e. work on objects and sets.
+%    \begin{macrocode}
+\DeclareMathOperator{\Gal}{Gal}
+%    \end{macrocode}
+% \item[operators] \DescribeMacro{dcup}
+% disjoint union
+%    \begin{macrocode}
+\newcommand{\dcup}{\dot{\cup}}
+%    \end{macrocode}
+% \item[Functions] \DescribeMacro
+% some frequently used functions (while |\gcd| is already defined, |\lcm| is not), mainly from cryptography
+%    \begin{macrocode}
+\DeclareMathOperator{\lcm}{lcm}
+\DeclareMathOperator{\dlog}{dlog}
+\DeclareMathOperator{\enc}{enc}
+\DeclareMathOperator{\dec}{dec}
+\DeclareMathOperator{\ver}{ver}
+\DeclareMathOperator{\sig}{sig}
+%    \end{macrocode}
+% \item[People]
+% famous parties in crypto-games
+%    \begin{macrocode}
+\newcommand{\TA}{\textsc{Trusted Authority}}
+\newcommand{\Alice}{\textsc{Alice}}
+\newcommand{\Bob}{\textsc{Bob}}
+\newcommand{\Eve}{\textsc{Eve}}
+%    \end{macrocode}
+% \changes{v0.2.2}{2010/02/14}{added Functions and People for cryptography}
+% \end{description}
+%
+% \subsection{Fonts}
+% 
+% see the \emph{New Font Selection Scheme} (NFSS), fntguide.
+%
+% \section{Colors and graphics}
+%
+% \DescribeMacro{xcolor} Change fontcolor within a group with
+% |\color{red}|.
+%    \begin{macrocode}
+\RequirePackage{xcolor}
+%    \end{macrocode}
+%
+% \DescribeMacro{graphicx} l2tabu: Use |graphicx.sty| instead of
+% |epsf.sty|, |psfix.sty| or |epsfig.sty|.  Alternatively
+% |graphics.sty|.  See grfguide for differences.
+%
+%    \begin{macrocode}
+\RequirePackage{graphicx}
+%    \end{macrocode}
+%
+% \begin{macro}{wrapfig.sty}
+%   To make text wrap around figures the |wrapfig| package can be employed a typical syntax would be
+% \begin{verbatim}
+% \begin{wrapfigure}[height of figure in lines]{l,r,...}[overhang]{width}
+%   figure, caption, etc.
+% \end{wrapfigure}
+% \end{verbatim}
+% where l(eft) or (r)ight may also be specified i(nside) or o(utside) for two-sided documents to specify the position on the page.  The |overhang| moves the figure into the margin (but does \emph{not} add to |width|).  
+
+% Alternatively:  I also the tried |floatflt| package, but got error messages even with a minimal example
+% \end{macro}
+
+% \section{Algorithms and Code}
+%
+% \DescribeMacro{Listings}
+%    \begin{macrocode}
+\RequirePackage[final]{listings} \lstset{breaklines=true}
+%    \end{macrocode}
+% Put program code in a |lstlisting|-environment.  The option
+% |breaklines=true| makes smart line breaks, e.g. for SAGE-output, so
+% we do not have to care about that.  The package option |final|
+% overwrites a global |draft| option which would produce only captions
+% and corresponding labels.
+%
+% 
+%
+% \section{Tables}
+%
+% \DescribeMacro{array.sty} extended implementation of the \LaTeX\
+% |array|- and |tabular|-environments.  The standard definitions
+% |l|,|c|,|r|,|p{width}| and |@{decl}| remain unchanged.  Additionally
+% you can now
+% \begin{description}
+% \item[|>{decl}|] before any column definition to insert |decl|
+%   directly in front of the entry of the column
+% \item[|<{decl}|] same, but right after the entry
+% \end{description}
+% e.g. |\begin{tabular}{>{\bfseries} l l l}| will type the first
+%   column in bold.  Of course, our main interest is in mathematics,
+%   so we define three new column types which immediately load math
+%   mode.  Remark: If you use them in an |array|-environment, you get
+%   a column in LR mode, because the additional \$'s cancel the
+%   existing ones.
+%    \begin{macrocode}
+\RequirePackage{array} \setlength{\extrarowheight}{1pt}
+\newcolumntype{L}{>{$} l <{$}} \newcolumntype{C}{>{$} c <{$}}
+\newcolumntype{R}{>{$} r <{$}}
+%    \end{macrocode}
+% Remark: The extra row height avoids horizontal lines touching the capital
+% letters.
+%
+% Remark: If you want to center the content of floating objects like figures
+% and tables, use |\centering| instead of the |center|-environment, since the
+% latter introduces vertical space, which is unintended in most cases.
+%
+% \subsection{figures}
+%
+% Remark: If you want to center the content of floating objects like figures
+% and tables, use |\centering| instead of the |center|-environment, since the
+% latter introduces vertical space, which is unintended in most cases.
+%
+% \section{Updating, Fine-Tuning and Bugfixing}
+%
+% \DescribeMacro{verbatim.sty}
+% reimplementation of the |verbatim| and |verbatim*| environments, along with a
+% comment environment and the command |\verbatiminput{<filename>}|.
+%    \begin{macrocode} 
+\RequirePackage{verbatim}
+%    \end{macrocode}
+%
+% \DescribeMacro{microtype.sty}
+% highly recommend when using pdfLaTeX (plain LaTeX can not make use of it),
+% because it improves line filling with:
+% \begin{description}
+% \item[font expansion] it horizontally expands the characters in
+%   order to optimally fill each line;
+% \item[character protrusion] it lets some characters protrude into
+%   the margins (typically the hyphens and punctuation signs).
+% \end{description}
+%    \begin{macrocode} 
+\RequirePackage{microtype}
+%    \end{macrocode}
+%
+%\begin{macro}{fixltx2e.sty}
+%Corrections to \LaTeX\ that will be changed in the next release.
+%    \begin{macrocode}
+\RequirePackage{fixltx2e}
+%    \end{macrocode}
+%\end{macro}
+%
+% \section{Typsetting Math}
+% 
+% \subsection{Display Math}
+%
+% NEVER: |$$ ... $$|, since this is \TeX and leads to inconsistent vertical
+% spacing (l2tabu and amsldoc).
+%
+% CAVE: No |displaymath|, if |amsmath.sty|
+%
+% CAVe: No |eqnarray(*)| at all.
+%
+% \subsubsection{single line}
+%
+% \DescribeEnv{equation}
+% \DescribeEnv{equation*}
+% |equation| resp. |equation*| (equivalently |\[ .. \]| as defined in the last
+% lines of |amsmath.sty|)
+%
+% CAVE: The last two possibilities are substitutes for |displaymath| which is
+% no longer supported, when |amsmath.sty| is loaded.
+%
+% \DescribeEnv{multline}
+% the
+% |multline|-environment behaves like the |equation|-environment, but on several lines, putting the first line left-aligned, the last
+% right-aligned and all in between centered.
+%
+% \subsubsection{several lines}
+%
+% without alignment
+% \DescribeEnv{gather}
+% \DescribeEnv{gather*}
+%
+% with alignment
+% \DescribeEnv{align}
+% \DescribeEnv{align*}
+%
+% \subsubsection{split into several lines within another environment}
+%
+% \DescribeEnv{split}
+% using |&|.
+%
+% \subsection{Punctuation at the End of Equations \dots}
+%
+% \dots should be separated by a small space |\,| before the end punctuation mark.
+%
+% \section{Typesetting Text}
+%
+% \subsection{Using roman numerals for the enumerate environment}
+% \begin{environment}{enumerate}
+% \changes{v0.2}{2010/01/21}{roman numerals for enumerate}
+%    \begin{macrocode} 
+\renewcommand{\labelenumi}{(\roman{enumi})} % Listen roemisch durchzaehlen
+\renewcommand{\theenumi}{(\roman{enumi})} % und auch roemisch referenzieren
+%    \end{macrocode}
+% \end{environment}
+%
+% \subsection{Outdated Commands}
+%
+% \TeX's |a \over b| should be replaced by |\frac{a}{b}| -- as redefined by |amsmath.sty|.
+%
+% \TeX's |\centerline{...}| should be replaced by |{\centering ...}| or the |center|-environment.
+%
+% \subsection{Input accented characteres (Umlauts)}
+%
+% l2tabu: |H{\"u}lle| works always, but breaks the kerning. \emph{Never us this.}
+%
+% |H\"ulle| works always, does not have the kerning problem and is therefore
+% \emph{recommended for macros and packages}.
+%
+% |H"ulle| works if |babel.sty| with option |(n)german| (or the package
+% |(n)german.sty|) is loaded.  \emph{Recommended for text.}
+%
+% Direct input |Hülle| works only if the correct input encoding is specified
+% by |\usepackage[latin1]{inputenc}|. \emph{We do not want this, since we aim
+% for OS-independence.}
+%
+% CAVE: l2tabu warns about |isolatin1.sty|, |isolatin.sty| or |umlaut.sty|.
+% Do not use them.
+%
+%
+% \subsection{Changing Text Style}
+%
+%  Use |\textbf{...}| locally or |\bfseries| as global switch, i.e. for the
+%  following text unit the end of the group.  Same goes for |\emph{...}| and
+%  |\em|, |\textit{...}| and |\itshape|, |\textsc{...}| and |\scshape|,
+%  |\textsf{...}| and |\sffamily|, |\texttt{...}| and |\ttfamily|.
+%
+% Remark: The global switch is particularly useful for macro definitions and
+% also includes italics correction. (|{\it off}set| fails to do that.)
+%
+% CAVE: l2tabu warns about the outdated (LaTeX2?) global switches |\bf|, |\it|,
+% |\sc|, |\sf|, |\tt| since they \emph{reset} the fonts before applying the
+% change: |{\it \bf foo}| prints \emph{no} italic text.
+%
+%
+% \subsection{Capitalization in Headings}
+%
+% For |llncs|-class this is regulated as follows:  Every first word and every further word except articles, prepositions and conjunctions.  Special rules apply for words with hyphens:  If the first word can stand alone, the second should be capitalized.
+
+% Examples:  Criteria to Disprove Context-Freeness of Collage Language, On correcting the Intrusion of Tracing Non-deterministic Programs by Software, A User-Friendly and Extendable Data Distribution System, Multi-flip Networks: Parallelizing GenSAT, Self-determinations of Man.
+
+% \subsection{Adding unnumbered sections to the table of contents}
+% \label{sec:adding-unnumb-sect}
+
+% Starred sections are by default not included in the table of contents.  To get
+% them listed use
+% \begin{verbatim}
+% \section*{<title>}
+% \addcontentsline{toc}{section}{<title>}
+% \end{verbatim}
+% where the second argument |section| determines the layout and the first option
+% the list in which the entry shall appear.  Analogously add to the list of
+% figures (|lof|) or list of tables (|lot|).
+
+% \section{Page layout}
+% \label{sec:page-layout}
+
+% the difference between |\newpage| and |\clearpage| is that the former only ends the current page, while the latter \emph{also} causes all floats (figures, tables, ecct.) that have appeared so far to be printed.
+
+% \section{Appendix: Relations to other styles/classes}
+%
+% \subsection{llncs.cls}
+%
+% \DescribeMacro{llncs.cl}
+% \subsubsection{Get it compilable}
+% \begin{itemize}
+% \item change documentclass |article| to |llncs| with options
+%   |disable| and |final|.
+% \item Exclude |comment| environments
+% \item Cut address from the |author| field.
+% \item Paste address to |institute| field.  Separate several
+%   addresses by |\and|.
+% \item Mark email with |\email{}|.
+% \item Mark authors with the corresponding institute |\inst{1}|.
+% \item Rename all standard environments to non-standard environments
+%   to make cleveref available, e.g.
+% \begin{verbatim}
+% \newaliascnt{theorem-c}{equation}
+% \newtheorem{theorem-c}[theorem-c]{Theorem}
+% \crefname{theorem-c}{Theorem}{Theorem}
+% \aliascntresetthe{theorem-c}
+% \end{verbatim}
+% \item Move title, author and maketitle right after
+%   |\begin{document}|
+%   \item Substitute |\end{proof}| by |\qed\end{proof}|.
+% \item Add page numbering by |\pagestyle{plain}| for better further editing.
+% \end{itemize}
+
+% \subsubsection{Satisfy submission requirements}
+% \begin{itemize}
+% \item Provide abstract.
+% \item Provide key words.
+% \item Use |\label| and |\ref| to allow cross-references.
+% \item Use |\bibitem| and |\cite| for hyperlinks to the bibliography.
+% \item The bibliography-style should use square brackets and consecutive numbers.
+% \item Remove page numbergin by removing |\pagestyle{plain}|.
+% \end{itemize}
+
+% \subsection{sigalternate.cls}
+%
+% \DescribeMacro{.cl}
+% \subsubsection{Get it compilable}
+% \begin{itemize}
+% \item change documentclass |article| to |sig-alternate| with options
+%   |disable| (to disable todos) and |final|.
+% \item include cmacrosc by filecontents
+% \item Move title, author and maketitle right after |\begin{document}|
+% \item Make formulaes in the title |{\huge $\mathbf ... $}|.
+% \item Get lowercase letters in section headings with the patch |lcsect.sty| and the command |\lcsection{TITLE WITH LOWERCASE MATH $k$}|.
+% \item Provide |\numberofauthors| and format |\authors| according to |https://www.acm.org/sigs/publications/sig-alternate-v1.1|.
+% \item uncomment amsthm and all newaliascnt/newtheorem/aliascntresetthe/autorefname-blocks 
+% \item after |\begin{document}| insert a block of newtheorem environments
+% \begin{verbatim}
+% \newtheorem{theorem}{Theorem}[section]
+% \newtheorem{corollary}[theorem]{Corollary}
+% \newtheorem{lemma}[theorem]{Lemma}
+% \newtheorem{proposition}[theorem]{Proposition}
+% \newtheorem{conjecture}[theorem]{Conjecture}
+% \newtheorem{fact}[theorem]{Fact}
+% \newtheorem{example}[theorem]{Example}
+% \newtheorem{definition}[theorem]{Definition}
+% \end{verbatim}
+% \item add option |breaklinks=true| to hyperref to break that long links).
+% \item If BibTeX complains about |Missing newblock|, |\def\newblock{\hskip .11em plus .33em minus .07em}| right after the document class.
+% \item To add page numbers for proof reading add |\pagenumbering{arabic}|
+% \end{itemize}
+
+% \subsubsection{Satisfy submission requirements}
+% \begin{itemize}
+% \item Provide abstract.
+% \item Add category and subject descriptor from |https://www.acm.org/about/class/1998|, general terms from section 2.3.3 in |https://www.acm.org/sigs/publications/sig-alternate-v1.1| and keywords
+% \item Add conference info and keywords.
+% \item Use |\label| and |\ref| to allow cross-references.
+% \item Use |\bibitem| and |\cite| for hyperlinks to the bibliography.
+% \item Remove page numbergin by removing |\pagestyle{plain}|.
+% \end{itemize}
+
+
+% \subsection{beamer.cls}
+
+% Paste content of current cmacrosc.sty 
+%
+% \section{Appendix: How to work this dtx-file}
+%
+% \DescribeMacro{\macro} \DescribeEnv{environment} To help format the
+% documentation you may use |\DescribeMacro{\macro}| and
+% |\DescribeEnv{<environment>}| which puts a respective note in the
+% margin and the index.  There seems to be no straightforward way to
+% collect several |\macros| with one |\DescribeMacro|.
+%
+% In the text itself you may use the following four commands
+% |\marg{foo}|, |\oarg{foo}|, |\parg{foo}| and |\meta{bar}| to typeset
+% \marg{foo}, \oarg{foo}, \parg{foo} and \meta{bar}.
+%
+% To comment the code, the following layout is advised:
+% \begin{verbatim}
+% %    \begin{macrocode}
+%      <code>
+% %    \end{macrocode}
+% \end{verbatim}
+% The lines of code in the |macrocode|-environment now get written
+% directly to the .sty-file without stripping
+% |%|, so they should not contain any.
+% CAVE: There must be exactly 4 spaces between
+% |%| and |\begin| resp. |\end|.
+%
+% \DescribeEnv{macro} \DescribeEnv{environment} To delineate the code
+% several macrocode-fragments can be collected in the two environments
+% \begin{verbatim}
+% \begin{macro}{\macro}
+%   ...
+% \end{macro}
+% \begin{environment}{environment}
+%   ...
+% \end{environment}
+% \end{verbatim}
+% which are not required, but maybe useful -- also for the description
+% of commands and counters, etc.
+%
+% These environments can be nested and put a sticker in the margin and
+% the index.
+%
+% \subsection{recording changes}
+%
+% Mark changes at the appropriate place with
+% |\changes{<version>}{<date>}{<description>}| at the appropriate place, best
+% in an macro or environment definition -- since this will then be displayed
+% in the Change history, too.  Finally, you have to produce the corresponding
+% ``glossary'' with |makeindex -s gglo.ist -o hpackagei.gls hpackagei.glo|
+%
+% \section{Bibliography}
+%
+% de-tex-faq l2tabu amsldoc Anselm Lingnau, \LaTeX\ Hacks
+%
+\endinput

@@ -66,55 +66,48 @@
 %
 % \maketitle
 %
+% \begin{abstract}
+%   This collection of packages and commands serves (at least) two
+%   purposes: 1. aid in the drafting process and 2. produce the layout
+%   we prefer (mainly inspired by the Computational Complexity class)
+%   when finalizing.  We base everything on the article class for
+%   maximal portability.  None of the packages is by me -- see the
+%   list of packages \todo{make this a section in the appendix} for the respective authors.  My only contribution
+%   is to choose an order and find options that are compatible.
+% \end{abstract}
+%
 % \tableofcontents
 %
-% \section{Introduction and Outline}
+% \section{Good style}
 %
-% This collection of packages and commands serves (at least) two purposes: 1. aid in the drafting process and 2. produce the layout we prefer (mainly inspired by the Computational Complexity class) when finalizing.
+% \subsection{Check your syntax with nag}
 %
-% \section{Structure}
-%
-% \todo{match this with toc}
-%
-% \begin{itemize}
-% \item newly defined commands/environments etc
-% \item optional packages with description
-% \item Advice on the preamble
-% \item Advice on the top matter information
-% \item Hints and Guidelines for typesetting text
-% \item Usage of the math environment
-% \item Usage of BibTeX
-% \end{itemize}
-%
-
-% \section{Options available for documentclass}
-%
-% \subsection{a4paper}
-% \DescribeMacro{a4paper} CAVE: l2tabu \todo{turn this into a cite} warns about the outdated
-% |a4.sty| (with the outdated option |widemargin|) and |a4wide.sty|.
-
-% \subsection{a5paper}
-% \label{sec:a5paper}
-
-% The document gets typeset in |a5paper| layout, but depending on your
-% TeX-Installation may still be printed on a4paper -- resulting in lots of white
-% space on the lower and right edge.  This is resolved by usage of a package
-% that employs the necessary |\special| commands to tell the driver which page
-% format is actually to be used: |geometry| and |hyperref| can do that.  (They
-% inherit the global option.)
-
-% \subsection{twoside}
-% \label{sec:twoside}
-
-% is default for any standard class except article.
-
-% \subsection{environments keywords and AMS for compatibility}
-
-%   \begin{macrocode}
-\newenvironment{keywords}{\textbf{Keywords.}}{}
-\newenvironment{AMS}{\textbf{2010 Mathematics Subject Classification.}}{}
 %    \begin{macrocode}
+\RequirePackage[l2tabu,orthodox]{nag}
+%    \end{macrocode}
+%
+% \section{Options for this package}
+%
+%    \begin{macrocode}
+\newif\ifOptBeamer\OptBeamerfalse
+\newif\ifOptThm\OptThmtrue
+\newif\ifOptNatbib\OptNatbibtrue
+\newif\ifOptLlncs\OptLlncsfalse
+\DeclareOption{beamer}{\OptBeamertrue\OptThmfalse}
+\DeclareOption{nothm}{\OptThmfalse}
+\DeclareOption{nonatbib}{\OptNatbibfalse}
+\DeclareOption{llncs}{\OptLlncstrue\OptThmfalse}
+%    \end{macrocode}
+% Now, all options are defined.  We execute the default options.
+%    \begin{macrocode}
+\ProcessOptions\relax
 
+%    \begin{macrocode}
+\ifOptBeamer
+\RequirePackage{etex}
+\reserveinserts{28}
+\fi
+%    \end{macrocode}
 
 % \section{Packages loaded}
 %
@@ -129,7 +122,26 @@
 % \DescribeMacro{fontenc} l2tabu: Do not use |fontenc.sty| for that.
 %    \begin{macrocode}
 \RequirePackage[T1]{fontenc}
+\ifOptBeamer
+\RequirePackage[scaled]{helvet}
+\else
+\RequirePackage{lmodern}
+\fi
 %    \end{macrocode}
+% to use 8-bit fonts instead of default (OT1) 7-bit fonts.  This makes
+% Umlauts, etc. available and proper kerning and glyphs possible.
+%
+% Using Latin Modern, derived from Computer Modern providing
+% \begin{itemize}
+% \item revised metrics
+% \item more glyphs, especially diacritical characters
+% \item several extra fonts (like sans-serif boldface math)
+% \item extra symbols (like proper <<guillemots>>).
+% \end{itemize}
+% You can check the used fonts with |$ pdffonts file.pdf|.
+%
+% For beamer presentations we prefer (scaled) Helvitica as sans-serif
+% (i.e. default text) font over CM Sans.
 %
 % \DescribeMacro{txfonts.sty}
 % \DescribeMacro{pxfonts.sty}
@@ -142,10 +154,17 @@
 % list of todos with |\listoftodos|, switched off by global option
 % |disable|.
 %    \begin{macrocode}
+\ifOptBeamer\else
 \RequirePackage[linecolor=black,backgroundcolor=white,textsize=tiny,textwidth=2.5\marginparwidth]{todonotes}
+\ifOptLlncs
+\setcounter{tocdepth}{1}
+\fi
+\fi
 %    \end{macrocode}
-% Using |\url| or |\verb| in todonotes requires |\protect|;  try this
-% for |\eqref|, too.
+% Using |\url| or |\verb| in todonotes requires |\protect|; try this
+% for |\eqref|, too.  The llncs class sets |\setcounter{tocdepth}{0}|
+% so the todo items, which are declared as level 1 don't appear.  The
+% modification remedies that. (source \url{http://tex.stackexchange.com/questions/103735/list-of-todos-todonotes-is-empty-with-llncs})
 %
 % In case the todonotes package breaks again, the following two lines
 % neutralize its commands:
@@ -159,7 +178,7 @@
 % empty list occur?
 %
 % Todonotes is a really heavy package, loading lots of stuff (I guess
-% almost the complete Tikz-stuff).  It also seems to set options for
+% almost the complete Tikz-stuff and also graphicx).  It also seems to set options for
 % the graphicx package to be loaded later.
 %
 %
@@ -167,8 +186,15 @@
 %    \begin{macrocode}
 \RequirePackage[notref]{showkeys}
 %    \end{macrocode}
-% Switch off by global option |final|.  (Default is option |draft|.)  We choose option |notref|, because this omits the keys on |\ref|, where they are not of interest anyways and prevents a bug when |\autoref| occurs at the beginning of a |theorem| environment (effectively dropping the environment).
-%
+% Switch off by global option |final|.  (Default is option |draft|.)
+% We choose option |notref|, because this omits the keys on |\ref|,
+% where they are not of interest anyways and prevents a bug when
+% |\autoref| occurs at the beginning of a |theorem| environment
+% (effectively dropping the environment).  This package may conflict
+% with |hyperref|.  The |hyperref| manual suggests to load (hyperref)
+% with the option |implicit=false|, tex.SE claims that this is one of
+% the few packages that should be loaded \emph{after} |hyperref|.
+% TODO check that.
 % Note: |showlabels.sty| is similar, but shows the labels inline, affecting the formating.  |showkeys.sty| by Anonymous, dated 14 May 1988 is very similar.
 %
 % \begin{macro}{refcheck}
@@ -201,34 +227,19 @@
 %
 % \subsection{AMS environments}
 %
-% \DescribeMacro{amsmath, amsthm}
+% \DescribeMacro{amsmath}
 %    \begin{macrocode}
-\RequirePackage{amsmath, amsthm}
+\RequirePackage{amsmath}
 %    \end{macrocode}
-% theorems and equations share the same counter; to make it include
-% the section number we specify:
-%    \begin{macrocode}
-\numberwithin{equation}{section}
-%    \end{macrocode}
+
 % We fine-tune the theorem environments with |thmtools|.  |amsthm| (or |ntheorem|) is a prerequisite for that.
 %
 % \begin{macro}{thmtools.sty}
 % collection of tools and enhancements for theorem environments
 %    \begin{macrocode}
-
+\ifOptThm
+\RequirePackage{amsthm}
 \RequirePackage{thmtools}
-%    \end{macrocode}
-% The package |thm-autoref| of this bundle is supposed to fix |hyperref|'s
-% problems for the |\autoref| command, when different theorem-style
-% environments share the same counter.  The fix with |aliascnt| seems
-% necessary and sufficient.
-%
-% The version on CTAN is outdated.  Get the current version from
-% |http://www.absatzen.de/thmtools.html|
-%
-% Not necessary.
-% \end{macro}
-%    \begin{macrocode}
 
 \declaretheorem[sibling=equation]{corollary} % default style is plain
 \declaretheorem[sibling=equation]{theorem}
@@ -244,18 +255,92 @@
 \declaretheorem[sibling=equation, style=remark]{remark}
 \declaretheorem[sibling=equation, style=remark]{open question}
 
+\numberwithin{equation}{section}
+\fi
 %    \end{macrocode}
+% The package |thm-autoref| of this bundle is supposed to fix |hyperref|'s
+% problems for the |\autoref| command, when different theorem-style
+% environments share the same counter.  The fix with |aliascnt| seems
+% necessary and sufficient.
+%
+% The version on CTAN is outdated.  Get the current version from
+% |http://www.absatzen.de/thmtools.html|
+%
+% Not necessary.
 % We have to be careful, while defining theorem-like environments, since they
 % are also predefined by some packages and classes.  For example beamer and
 % llncs.  The first uses |note| to place annotations between slides.  To avoid
 % clashes we omit |note|.  It is a TODO to make our list MECE.  Right now,
 % there are too many.
+
+% theorems and equations share the same counter; to make the latter
+% display the section number we use |numberwithin|.
+% \end{macro}
+
+% \subsection{environments ``keywords'' and ``AMS'' for compatibility}
+% two more environments for compatibility
+%    \begin{macrocode}
+\ifOptThm
+\newenvironment{keywords}{\textbf{Keywords.}}{}
+\newenvironment{AMS}{\textbf{2010 Mathematics Subject
+    Classification.}}{}
+\fi
+%    \end{macrocode}
+%
+% \section{Typsetting Math}
+%
+% \subsection{Display Math}
+%
+% NEVER: |$$ ... $$|, since this is \TeX and leads to inconsistent vertical
+% spacing (l2tabu and amsldoc).
+%
+% CAVE: No |displaymath|, if |amsmath.sty|
+%
+% CAVe: No |eqnarray(*)| at all.
+%
+% \subsubsection{single line}
+%
+% \DescribeEnv{equation}
+% \DescribeEnv{equation*}
+% |equation| resp. |equation*| (equivalently |\[ .. \]| as defined in the last
+% lines of |amsmath.sty|)
+%
+% CAVE: The last two possibilities are substitutes for |displaymath| which is
+% no longer supported, when |amsmath.sty| is loaded.
+%
+% \DescribeEnv{multline}
+% the
+% |multline|-environment behaves like the |equation|-environment, but on several lines, putting the first line left-aligned, the last
+% right-aligned and all in between centered.
+%
+% \subsubsection{several lines}
+%
+% without alignment
+% \DescribeEnv{gather}
+% \DescribeEnv{gather*}
+%
+% with alignment
+% \DescribeEnv{align}
+% \DescribeEnv{align*}
+%
+% \subsubsection{split into several lines within another environment}
+%
+% \DescribeEnv{split}
+% using |&|.
+%
+% \subsection{Punctuation at the end of equations \dots}
+%
+% \dots should be separated by a small space |\,| from the final punctuation mark.
 %
 % We allow page breaks in multiline displays by
 %    \begin{macrocode}
 \allowdisplaybreaks[4]
 %    \end{macrocode}
-% The command |\\*| can be used to prohibit a pagebreak after a given line.  Note: Certain environments wrap their contents in an unbreakable box, prohibiting that effect.  These include |split|, |aligned|, |gathered|, and |alignedat|.
+% The command |\\*| can be used to prohibit a pagebreak after a given
+% line.  Note: Certain environments wrap their contents in an
+% unbreakable box, prohibiting that effect.  These include |split|,
+% |aligned|, |gathered|, and |alignedat|.
+
 %
 % \subsection{mathtools.sty as extension to amsmath}
 %
@@ -317,8 +402,12 @@
 % hypertext links; it also provedes new commands to allow the user to write
 % hypertext links to external documents and URLs.
 %    \begin{macrocode}
-\RequirePackage[%dvips, ps2pdf,
-pdfpagelabels=false, breaklinks=true, pdfborder={0 0 0}, final]{hyperref}
+\ifOptBeamer
+\RequirePackage{bookmark}
+\else
+\RequirePackage[pdfpagelabels=false, breaklinks=true, pdfborder={0 0
+  0}, final]{hyperref}
+\fi
 \hypersetup{colorlinks,%
 linkcolor=black,%
 citecolor=black,%
@@ -328,10 +417,14 @@ urlcolor=black}
 \DeclareUrlCommand\directory{\urlstyle{tt}}
 \makeatletter
 \newcommand*{\pdfauthor}[1]{\gdef\@pdfauthor{#1}}
+\newcommand*{\pdfkeywords}[1]{\gdef\@pdfkeywords{#1}}
+\newcommand*{\pdfsubject}[1]{\gdef\@pdfsubject{#1}}
 \AtBeginDocument{
   \hypersetup{
     pdftitle = {\@title},
-    pdfauthor = {\@pdfauthor}
+    pdfauthor = {\@pdfauthor},
+    pdfkeywords = {\@pdfkeywords},
+    pdfsubject = {\@pdfsubject}
   }
 }
 \makeatother
@@ -345,6 +438,11 @@ urlcolor=black}
 %    \end{macrocode}
 % For hypersetup to work properly, the author and title command have
 % to occur \emph{before} the begin of document.
+%
+
+% For the beamer class, we need the |bookmark| package to be able to
+% manually add |section*| to the pdf-bookmarks.  The capabilities of
+% |hyperref| to do so are turned of by the beamer class.%
 %
 % The optional argument loads the necessary drivers for the different formats.
 % Automatically loads the package |url| for which we define the additional commands |\email| and |\directory|.
@@ -361,6 +459,15 @@ urlcolor=black}
 %  \end{tabular}
 % You may also define the colors for links and explicitely the pdf document
 % information.
+%
+% The pdf-information is taken from the |\title| and |\author|
+% arguments.  This works fine for the former, while for the latter, we
+% often have to be more explicit with |\pdfauthor|.  You are free to
+% insert (comma separated) pdfkeywords with |\pdfkeywords| -- from the
+% keyword environment? -- and a subject with |\pdfsubject| -- from the
+% AMS classification?.
+%
+%
 %
 % The following additional user macros are defined: \DescribeMacro{\href} -
 % syntax: |\href{URL}{text}|.  \DescribeMacro{\url} \DescribeMacro{\nolinkurl}
@@ -390,7 +497,9 @@ urlcolor=black}
 %
 %\begin{macro}{natbib.sty}
 %    \begin{macrocode}
+\ifOptNatbib
 \RequirePackage[round,longnamesfirst,sort,comma]{natbib}
+\fi
 %    \end{macrocode}
 %The document begins with
 %\begin{verbatim}
@@ -533,6 +642,8 @@ urlcolor=black}
 \newcommand*{\Fpx}{\mathbb{F}_{p}^{\times}}
 \newcommand*{\Fq}{\mathbb{F}_{q}}
 \newcommand*{\Fqx}{\mathbb{F}_{q}^{\times}}
+\newcommand*{\Fr}{\mathbb{F}_{r}}
+\newcommand*{\Frx}{\mathbb{F}_{r}^{\times}}
 \newcommand*{\NN}{\mathbb{N}}
 \newcommand*{\QQ}{\mathbb{Q}}
 \newcommand*{\RR}{\mathbb{R}}
@@ -591,46 +702,7 @@ urlcolor=black}
 % \changes{v0.2.2}{2010/02/14}{added Functions and People for cryptography}
 % \end{description}
 %
-% \subsection{Fonts}
 %
-% see the \emph{New Font Selection Scheme} (NFSS), fntguide.
-%
-% \section{Colors and graphics}
-%
-% \DescribeMacro{xcolor} Change fontcolor within a group with
-% |\color{red}|.
-%    \begin{macrocode}
-\RequirePackage{xcolor}
-%    \end{macrocode}
-%
-% \DescribeMacro{graphicx} l2tabu: Use |graphicx.sty| instead of
-% |epsf.sty|, |psfix.sty| or |epsfig.sty|.  Alternatively
-% |graphics.sty|.  See |texdoc graphicx| for differences.  Since we
-% choose |latex/dvips/ps2pdf| over |pdflatex|, we specify option
-% |dvips| and are restricted to |eps| and |ps| graphics.  Switches for
-% |pdflatex| -- with respect to arxiv -- are on the todo list;
-% requires option |pdftex| and also modifications to hyperref.
-%
-%    \begin{macrocode}
-\RequirePackage{graphicx}
-%    \end{macrocode}
-%
-% Recently (?), the option |dvips| seems to clash with the previous
-% loading in |todonotes| -- we omit any explicit option and hope that
-% the package can figure the correct driver itself.
-%
-% \begin{macro}{wrapfig.sty}
-%   To make text wrap around figures the |wrapfig| package can be employed a typical syntax would be
-% \begin{verbatim}
-% \begin{wrapfigure}[height of figure in lines]{l,r,...}[overhang]{width}
-%   figure, caption, etc.
-% \end{wrapfigure}
-% \end{verbatim}
-% where l(eft) or (r)ight may also be specified i(nside) or o(utside) for two-sided documents to specify the position on the page.  The |overhang| moves the figure into the margin (but does \emph{not} add to |width|).
-
-% Alternatively:  I also the tried |floatflt| package, but got error messages even with a minimal example
-% \end{macro}
-
 % \section{Algorithms and Code}
 %
 %    \begin{macrocode}
@@ -648,6 +720,7 @@ urlcolor=black}
 % algorithm2eautorefname.  The option |algo2e| is employed for better
 % compatibility when translating to classes which predefine an |algorithm|-environment.
 %    \begin{macrocode}
+\ifOptBeamer\else
 \RequirePackage[linesnumbered, boxruled, algo2e]{algorithm2e}
 \SetKwInput{Input}{Input}    % use as \Input{bar} and \Output{foo}
 \SetKwInput{Output}{Output}  % ... and finish with \Return foo\;
@@ -671,6 +744,7 @@ urlcolor=black}
 }{
 \end{algorithm2e}
 }
+\fi
 
 \makeatletter\let\chapter\@undefined\makeatother
 %    \end{macrocode}
@@ -678,9 +752,40 @@ urlcolor=black}
 % breaks it; algorithm2e does not like that fix so it has to occur
 % here.
 
+% \section{Floats: graphics, tables, algorithms}
+%
+% Remark: If you want to center the content of floating objects like figures
+% and tables, use |\centering| instead of the |center|-environment, since the
+% latter introduces vertical space, which is unintended in most cases.
+%
+% \subsection{Colors and graphics}
+%
+% \todo{Say something about tikz \& PSTricks here.}
+%
+% \DescribeMacro{xcolor} Change fontcolor within a group with
+% |\color{red}|.
+%    \begin{macrocode}
+\RequirePackage{xcolor}
+%    \end{macrocode}
+%
+% \DescribeMacro{graphicx} l2tabu: Use |graphicx.sty| instead of
+% |epsf.sty|, |psfix.sty| or |epsfig.sty|.  Alternatively
+% |graphics.sty|.  See |texdoc graphicx| for differences.  Since we
+% choose |latex/dvips/ps2pdf| over |pdflatex|, we specify option
+% |dvips| and are restricted to |eps| and |ps| graphics.  Switches for
+% |pdflatex| -- with respect to arxiv -- are on the todo list;
+% requires option |pdftex| and also modifications to hyperref.
+%
+%    \begin{macrocode}
+\RequirePackage{graphicx}
+%    \end{macrocode}
+%
+% Recently (?), the option |dvips| seems to clash with the previous
+% loading in |todonotes| -- we omit any explicit option and hope that
+% the package can figure the correct driver itself.
 %
 %
-% \section{Tables: tabular (default: text) and array (default: math)}
+% \subsection{Tables: tabular (default: text) and array (default: math)}
 %
 % \DescribeMacro{array.sty} extended implementation of the \LaTeX\
 % |array|- and |tabular|-environments.  The standard definitions
@@ -707,15 +812,7 @@ urlcolor=black}
 % Remark: The extra row height avoids horizontal lines touching the capital
 % letters.
 %
-% Remark: If you want to center the content of floating objects like figures
-% and tables, use |\centering| instead of the |center|-environment, since the
-% latter introduces vertical space, which is unintended in most cases.
-%
-% \subsection{figures}
-%
-% Remark: If you want to center the content of floating objects like figures
-% and tables, use |\centering| instead of the |center|-environment, since the
-% latter introduces vertical space, which is unintended in most cases.
+% \subsection{listings and algorithm2f}
 %
 % \section{Updating, Fine-Tuning and Bugfixing}
 %
@@ -746,50 +843,6 @@ urlcolor=black}
 %    \end{macrocode}
 %\end{macro}
 %
-% \section{Typsetting Math}
-%
-% \subsection{Display Math}
-%
-% NEVER: |$$ ... $$|, since this is \TeX and leads to inconsistent vertical
-% spacing (l2tabu and amsldoc).
-%
-% CAVE: No |displaymath|, if |amsmath.sty|
-%
-% CAVe: No |eqnarray(*)| at all.
-%
-% \subsubsection{single line}
-%
-% \DescribeEnv{equation}
-% \DescribeEnv{equation*}
-% |equation| resp. |equation*| (equivalently |\[ .. \]| as defined in the last
-% lines of |amsmath.sty|)
-%
-% CAVE: The last two possibilities are substitutes for |displaymath| which is
-% no longer supported, when |amsmath.sty| is loaded.
-%
-% \DescribeEnv{multline}
-% the
-% |multline|-environment behaves like the |equation|-environment, but on several lines, putting the first line left-aligned, the last
-% right-aligned and all in between centered.
-%
-% \subsubsection{several lines}
-%
-% without alignment
-% \DescribeEnv{gather}
-% \DescribeEnv{gather*}
-%
-% with alignment
-% \DescribeEnv{align}
-% \DescribeEnv{align*}
-%
-% \subsubsection{split into several lines within another environment}
-%
-% \DescribeEnv{split}
-% using |&|.
-%
-% \subsection{Punctuation at the End of Equations \dots}
-%
-% \dots should be separated by a small space |\,| before the end punctuation mark.
 %
 % \section{Typesetting Text}
 %
@@ -798,11 +851,13 @@ urlcolor=black}
 % \changes{v0.2}{2010/01/21}{roman numerals for enumerate}
 % \DescribeEnv{alnumerate,ronumerate}
 %    \begin{macrocode}
+\ifOptBeamer\else
 \RequirePackage{enumitem}
 \newlist{alnumerate}{enumerate}{1}
 \setlist[alnumerate,1]{label=(\alph*)}
 \newlist{ronumerate}{enumerate}{1}
 \setlist[ronumerate,1]{label=(\roman*)}
+\fi
 %    \end{macrocode}
 % We define two new enumerate-like environments which count and
 % reference like (a) (for exercises) and (i) (for theorem
@@ -815,64 +870,9 @@ urlcolor=black}
 % |[resume]|.
 % \end{environment}
 %
-% \subsection{Outdated Commands}
+% \appendix
 %
-% \TeX's |a \over b| should be replaced by |\frac{a}{b}| -- as redefined by |amsmath.sty|.
-%
-% \TeX's |\centerline{...}| should be replaced by |{\centering ...}| or the |center|-environment.
-%
-% \subsection{Input accented characteres (Umlauts)}
-%
-% l2tabu: |H{\"u}lle| works always, but breaks the kerning. \emph{Never us this.}
-%
-% |H\"ulle| works always, does not have the kerning problem and is therefore
-% \emph{recommended for macros and packages}.
-%
-% |H"ulle| works if |babel.sty| with option |(n)german| (or the package
-% |(n)german.sty|) is loaded.  \emph{Recommended for text.}
-%
-% Direct input |Hülle| works only if the correct input encoding is specified
-% by |\usepackage[latin1]{inputenc}|. \emph{We do not want this, since we aim
-% for OS-independence.}
-%
-% CAVE: l2tabu warns about |isolatin1.sty|, |isolatin.sty| or |umlaut.sty|.
-% Do not use them.
-%
-%
-% \subsection{Changing Text Style}
-%
-%  Use |\textbf{...}| locally or |\bfseries| as global switch, i.e. for the
-%  following text unit the end of the group.  Same goes for |\emph{...}| and
-%  |\em|, |\textit{...}| and |\itshape|, |\textsc{...}| and |\scshape|,
-%  |\textsf{...}| and |\sffamily|, |\texttt{...}| and |\ttfamily|.
-%
-% Remark: The global switch is particularly useful for macro definitions and
-% also includes italics correction. (|{\it off}set| fails to do that.)
-%
-% CAVE: l2tabu warns about the outdated (LaTeX2?) global switches |\bf|, |\it|,
-% |\sc|, |\sf|, |\tt| since they \emph{reset} the fonts before applying the
-% change: |{\it \bf foo}| prints \emph{no} italic text.
-%
-%
-% \subsection{Adding unnumbered sections to the table of contents}
-% \label{sec:adding-unnumb-sect}
-
-% Starred sections are by default not included in the table of contents.  To get
-% them listed use
-% \begin{verbatim}
-% \section*{<title>}
-% \addcontentsline{toc}{section}{<title>}
-% \end{verbatim}
-% where the second argument |section| determines the layout and the first option
-% the list in which the entry shall appear.  Analogously add to the list of
-% figures (|lof|) or list of tables (|lot|).
-
-% \section{Page layout}
-% \label{sec:page-layout}
-
-% the difference between |\newpage| and |\clearpage| is that the former only ends the current page, while the latter \emph{also} causes all floats (figures, tables, ecct.) that have appeared so far to be printed.
-
-% \section{Optional Commands in the Preamble}
+% \section{For your consideration: optional commands}
 %
 % \subsection{Signatures for Quotes}
 %
@@ -906,7 +906,7 @@ urlcolor=black}
 % absolute lengths(1em).  Using \TeX-syntax |\parindent=1em| is
 % discouraged.
 %
-% \section{Optional Packages with Description}
+% \section{For your consideration: optional packages}
 %
 % \subsection{geometry.sty}
 % \DescribeMacro{geometry.sty} to change the page layout.
@@ -924,8 +924,21 @@ urlcolor=black}
 % \subsection{fancyhdr.sty}
 % \DescribeMacro{fancyhdr.sty} l2tabu: |fancyhdr.sty| instead of
 % |fancyheadings.sty|
+%
+% \begin{macro}{wrapfig.sty}
+%   To make text wrap around figures the |wrapfig| package can be employed a typical syntax would be
+% \begin{verbatim}
+% \begin{wrapfigure}[height of figure in lines]{l,r,...}[overhang]{width}
+%   figure, caption, etc.
+% \end{wrapfigure}
+% \end{verbatim}
+% where l(eft) or (r)ight may also be specified i(nside) or o(utside) for two-sided documents to specify the position on the page.  The |overhang| moves the figure into the margin (but does \emph{not} add to |width|).
 
-% \section{Appendix: A template for the article class and instructions
+% Alternatively:  I also the tried |floatflt| package, but got error messages even with a minimal example
+% \end{macro}
+%
+%
+% \section{Use Case: a template for the article class and instructions
 % for porting to other classes}
 %
 % Porting your working document, set in the article class, to
@@ -937,7 +950,30 @@ urlcolor=black}
 % environment to include the .bbl and this .sty and enhance it with
 % the package |filecontents| that enables overwriting of existing files.
 %
-% \subsection{article.cls}
+% \subsection{generalities}
+% ** via filecontents-environment
+% -  insert *before* |\documentclass|
+% \begin{verbatim}
+%    \begin{filecontents}{\jobname--additional_macros.sty}
+%    copy and paste from the current version of cmacrosc.sty
+%    \end{filecontents}
+% \end{verbatim}
+%    or even filecontents*, which omits the auto-generated comments of filecontents in the written files
+% -  change |\usepackage{cmacrosc}| to |\usepackage{\jobname--additional_macros}|
+% ** fancy solution with arlatex
+% *** Usage
+%     MISSING
+% *** Installation
+%     - download arlatex and bundledoc from ctan
+%     - copy to /usr/local/bin and make it executable and readable
+% ** How to make files portable
+%    - write filename.bbl into filecontents
+%      even better: substitute .bbl for |\bibliography|
+%    - write cmacrosc.sty (and all other packages that might not be available) into filecontents
+%    - test on vanilla TeXLive (see below)
+%    - zip images
+%
+% \subsection{usage with article.cls}
 %
 % Our skeleton for working with the article class looks as follows.
 % \begin{verbatim}
@@ -970,19 +1006,59 @@ urlcolor=black}
 % Initially, we omit any |\address| or |\thanks| and put the
 % affiliation with the authors.
 %
-% \subsection{llncs.cls}\DescribeMacro{llncs.cl}
+% \subsection{submit to arxiv}
+%
+% This is quick and easy (<1 hour), since the arxiv has a complete TeX
+% Live system, can process with pdfLaTeX, and respects subdirectories
+% (when uploading .tar.gz).
+% \begin{enumerate}
+% \item make folder |YYYY-MM-DD-v<num>| in |submitted_to/arxiv|
+% \item copy therein .tex, .bbl, .sagetex.sout, and folder
+% sage-plots-for-<file>.tex
+% \item REMOVE ALL COMMENTS!  Sources, i.e. everything you submitted,
+% will be available for download.  The arxiv's FAQ suggest the
+% following perl-command: \begin{verbatim}$ perl -pe 's/(^|[^\\])%.*/$1%/' < old.tex > new.tex\end{verbatim}
+% \item copy therein artmacs.sty and sagemath.sty
+% \item test by compiling
+% \item add |\pdfoutput=1| to the first line of <file>.tex
+% \item |tar -zcf <file>.tar.gz *| and upload (no need, to clean up
+% here, since the arxiv is very forgiving, see next point)
+% \item arxiv processes after decompressing, discarding unnecessary
+% auxiliary files and included outputs (like <file>.pdf) from tests
+% (see above); CAVE: emacs backup file |<file>.tex~| will be renamed
+% and processed as additional tex-file thereby \emph{doubling} the
+% output.  Remove this file manually.
+% \item if applicable, add comment to meta-data: ``to appear in <journal>''
+% \end{enumerate}
+%
+%
+%
+% \subsection{convert to llncs.cls for Weworc}\DescribeMacro{llncs.cls}
 %
 % The class and its documentation are available from
 % \url{ftp://ftp.springer.de/pub/tex/latex/llncs/latex2e/llncs2e.zip}.
-% As of 27 June 2012, the most recent version for llncs.cls is 2.17
-% dating from 15 April 2012.
-%
-% \subsubsection{Get it compiling}
+% You find the latest version in |~/texmf/tex/latex/llncs2e|.
+% Important: put the top-matter
+% information (title, author, institute) before |begin{document}| so
+% that it appears in the pdf-info.  Start the document with
+% |\maketitle| and the |abstract|-environment.
 %
 % \subsubsection{Get it compilable}
 % \begin{itemize}
 % \item change documentclass to |llncs| with options
-%   |disable, final, envcountsame, oribibl|.
+%   |disable, final, envcountsame, oribibl|.  The latter, so we can
+%   use our own favorite citation-style |cc2|.
+%    \begin{macrocode}
+\ifOptLlncs
+\makeatletter
+\renewcommand\bibsection%
+{
+  \section*{\refname
+    \@mkboth{\MakeUppercase{\refname}}{\MakeUppercase{\refname}}}
+}
+\makeatother
+\fi
+%    \end{macrocode}
 % \item Add |\pagestyle{plain}| for page numbers.
 % \item Change |address| to |institute|.  Separate several
 %   addresses by |\and|.
@@ -991,18 +1067,6 @@ urlcolor=black}
 % \item Replace |\end{proof}| by |\qed\end{proof}|.
 % \item
 % \url{http://www.togaware.com/linux/survivor/Bibliography_Starts.html} says llncs defines chapters, and that makes natbib use chapter to introduce bibliographies.  It should use sections; enforce this by
-% \begin{verbatim}
-% \makeatletter
-% \renewcommand\bibsection%
-% {
-%   \section*{\refname
-%     \@mkboth{\MakeUppercase{\refname}}{\MakeUppercase{\refname}}}
-% }
-% \makeatother
-% \end{verbatim}
-
-
-
 % \item Rename all standard environments to non-standard environments
 %   to make cleveref available, e.g.
 % \begin{verbatim}
@@ -1021,15 +1085,17 @@ urlcolor=black}
 % \item Set document option |draft| to |disable, final|.
 % \end{itemize}
 %
-% \subsection{Capitalization in Headings}
+% \subsubsection{Adjust capitalization in headings}
 %
 % For |llncs|-class this is regulated as follows:  Every first word and every further word except articles, prepositions and conjunctions.  Special rules apply for words with hyphens:  If the first word can stand alone, the second should be capitalized.
 
 % Examples:  Criteria to Disprove Context-Freeness of Collage Language, On correcting the Intrusion of Tracing Non-deterministic Programs by Software, A User-Friendly and Extendable Data Distribution System, Multi-flip Networks: Parallelizing GenSAT, Self-determinations of Man.
 
 
-% \subsection{sig-alternate.cls for ISSAC}
+% \subsection{convert to sig-alternate.cls for ISSAC}
 % \DescribeMacro{sig-alternate.cls}
+%
+% You find the latest version in |~/texmf/tex/latex/sig-alternate|.
 %
 % \subsubsection{exclude proof environments}
 % This is achieved with the comment environment of the verbatim package.  Either substitute all |{proof}| by |{comment}| or even better put the following two lines in the preamble.
@@ -1092,10 +1158,8 @@ urlcolor=black}
 % \end{itemize}
 
 
-% \subsection{siamltex.cls for SIAM}
+% \subsection{convert to siamltex.cls for SIAM}
 % \DescribeMacro{siamltex.cls}
-%
-% \subsubsection{Get it compiling}
 %
 % time effort: less than 10 minutes.
 % \begin{itemize}
@@ -1137,14 +1201,93 @@ urlcolor=black}
 % \item Check that artmacs is loaded first after |\documentclass|.
 % \end{itemize}
 
-% \subsection{beamer.cls}
+% \subsection{convert to elsarticle.cls for JSC}
+
+% time effort: less than 5 minutes.
+
+% Download most recent |elsarticle.cls| and |elsarticle-harv.bst| from
+% Elsevier.  (Both are also
+% part of TexLive and documentation is therefore conveniently provided
+% with |$ texdoc elsarticle|.)  Do \emph{not} use the outdated |elsart.cls|, although
+% provided on the JSC-webpage.  They also accept the more recent and
+% more compatible |elsarticle.cls|.
+
+% \begin{itemize}
+% \item change documentclass to |elsarticle| (default options are:
+% a4paper, 10pt, oneside, onecolumn, preprint -- so remove all
+% ``your'' options except |draft|, |final|, |disable|.)
+% \item add |\biboptions{authoryear,round,longnamesfirst,sort,comma}|
+% immediately thereafter and pass option |nonatbib| to package
+% |artmacs|;  TODO check whether there is a possibility to just have
+% |\biboptions{authoryear}| at the beginning and ``get'' all the other
+% options from the artmacs-package -- then |authoryear| could also be
+% passed as option to the |documentclass| (saving one line and
+% improving consistency).
+% \item Change |\bibliographystyle| to |elsarticle-harv|
+% \item Expand author field to |\author[1]{foo\corref{cor}}|, |\author[2]{bar}|, etc. and
+% add |\ead| after each author, |\address[1]| for each aviliation and
+% |\cortext[cor]{Corresponding author}|.
+% \item Change |keywords|-environment to |keyword|; change commas to
+% |\sep|
+% \item Enclose |author|, |title|, |address|, |abstract|, |keyword| in |frontmatter|-environment
+% \end{itemize}
+
+% \subsection{usage with beamer.cls}
 
 % Paste content of current artmacs.sty
 % comment hyperref, since loaded automatically
-% add |\usepackage{etex}| and |\reserveinserts{28}| for more space
-% comment enumitem, since beamer has its own way of counting
-% beamer has its own theorem-style environments; conflicts with amsthm are outruled thanks to the beamer documentclass option |notheorem, noamsthm|;  apart from that put |\RequirePackage{thmtools}| and the subsequent |\declaretheorem|s in coments
+% add |\usepackage{etex}| (to extend the register, s.t. pstricks has
+% enough room) and |\reserveinserts{25}| for more space (also
+% sometimes 50, forgotten why),
+% comment enumitem, since beamer has its own special itemize- and
+% enumerate-environments;  in particular they take the optional
+% argument |[<+->]| to uncover |item| by |item| (avoiding several
+% |\pause|s).  If you want to uncover an item together with its
+% successor, just add [<.->] to that item.
+%
+% CAVE: pauses in the align-environment are a problem, see the beamer
+% manual; a possible solution using |\uncover<+->| is suggested there
+% which does \emph{not} work with pdflatex, when using
+% |\setbeamercovered{transparent}| as, for example, beamerthemecosec
+% does.  Whether any (or both) of the solutions (pause/uncover) work
+% depends on the parameters latex/pdflatex, transparent/invisible.
+% Anyways, for our ``default'' situation, described above with the
+% following patch by Hendrik Vogt, both work (and we prefer
+% |\pause|).  (Without the patch, things already work if the covering
+% is ``invisible''.)
 
+% Tikzpictures use the options |remember picture, overlay,| and then
+% |shift={(6,-4.7)}, scale=0.6,| for easy placement.
+
+
+\ifOptBeamer
+\makeatletter
+\def\pdftex@driver{pdftex.def}
+\ifx\Gin@driver\pdftex@driver
+  \def\pgfsys@color@unstacked#1{%
+    \pdfliteral{\csname\string\color@#1\endcsname}%
+  }
+\fi
+\makeatother
+\fi
+
+% (Eventually, this is supposed to become part of pgf?!)
+%
+% beamer has its own theorem-style environments; conflicts with amsthm
+% are outruled thanks to the beamer documentclass option |notheorem|,
+% |noamsthm|;  apart from that put |\RequirePackage{thmtools}| and the
+% subsequent |\declaretheorem|s in coments, also the new keyword
+% environment is not liked; exclude the algorithm2e package, since
+% we do this by hand anyways
+%
+%
+%
+%
+% Todonotes do not work within frames and yield strange results
+% outside;  suggested fixes employing
+% |\presetkeys{todonotes}{inline}{}| work only partially, and anyways,
+% we aren't even certain which result we'd like to have.  So, use
+% |\note{TODO: }| instead.
 %
 % \section{Bibliography}
 %

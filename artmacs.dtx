@@ -313,6 +313,8 @@
 % makes counters ``within'' a certain section/part of a document.  We
 % do this for all counters (also for floats) and make them all point
 % to the equation counter.
+% \changes{v0.2.9}{2014/06/11}{book option numbers equations within
+% chapters instead of sections}
 %
 % \begin{macro}{thmtools.sty}
 % collection of tools and enhancements for theorem environments
@@ -320,9 +322,15 @@
 \ifOptThm
 \ifOptLlncs
 \else
+\ifOptBook
+\numberwithin{equation}{chapter}
+\numberwithin{figure}{chapter}
+\numberwithin{table}{chapter}
+\else
 \numberwithin{equation}{section}
 \numberwithin{figure}{section}
 \numberwithin{table}{section}
+\fi
 
 \makeatletter
 \let\c@figure\c@equation

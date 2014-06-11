@@ -22,7 +22,7 @@
 %<package>\NeedsTeXFormat{LaTeX2e}[2003/12/01]
 %<package>\ProvidesPackage{artmacs}
 %<*package>
-  [2014/02/03 v0.2.8 macro collection for article class]
+  [2014/06/11 v0.2.10 macro collection for article class]
 %</package>
 %
 %<*driver>
@@ -93,11 +93,13 @@
 % implicit in option |beamer|}
 % \changes{v0.2.8}{2014/06/11}{inverted option |lax| to define option
 % |strict| such that |lax| becomes default}
+% \changes{v0.2.10}{2014/06/11}{replace private option |book| by public
+% option |numberwithinchapter| to ease experimentation}
 %    \begin{macrocode}
 \newif\ifOptBeamer\OptBeamerfalse
 \newif\ifOptLlncs\OptLlncsfalse
 \newif\ifOptSigAlterFix\OptSigAlterFixfalse
-\newif\ifOptBook\OptBookfalse
+\newif\ifOptChapter\OptChapterfalse
 
 \newif\ifOptStrict\OptStrictfalse
 
@@ -111,7 +113,8 @@
 \DeclareOption{elsarticle}{\OptNatbibfalse}
 \DeclareOption{sig-alternate}{\OptKeywordsfalse\OptSigAlterFixtrue}
 \DeclareOption{llncs}{\OptLlncstrue}
-\DeclareOption{classicthesis}{\OptHyperreffalse\OptCMFontsfalse\OptBooktrue}
+\DeclareOption{classicthesis}{\OptHyperreffalse\OptCMFontsfalse}
+\DeclareOption{numberwithinchapter}{\OptChaptertrue}
 
 \DeclareOption{strict}{\OptStricttrue}
 %    \end{macrocode}
@@ -322,7 +325,7 @@
 \ifOptThm
 \ifOptLlncs
 \else
-\ifOptBook
+\ifOptChapter
 \numberwithin{equation}{chapter}
 \numberwithin{figure}{chapter}
 \numberwithin{table}{chapter}

@@ -22,7 +22,7 @@
 %<package>\NeedsTeXFormat{LaTeX2e}[2003/12/01]
 %<package>\ProvidesPackage{artmacs}
 %<*package>
-  [2014/06/11 v0.2.10 macro collection for article class]
+  [2014/11/27 v0.2.11 macro collection for article class]
 %</package>
 %
 %<*driver>
@@ -56,6 +56,7 @@
 % \changes{v0.1}{2009/08/08}{initial version}
 % \changes{v0.2.2}{2010/02/14}{added some frequently used macros and packages}
 % \changes{v0.2.3}{2011/11/22}{added allowdisplaybreaks}
+% \changes{v0.2.11}{2014/11/27}{remove backrefs}
 %
 % \GetFileInfo{artmacs.dtx}
 %
@@ -101,13 +102,13 @@
 \newif\ifOptSigAlterFix\OptSigAlterFixfalse
 \newif\ifOptChapter\OptChapterfalse
 
-\newif\ifOptStrict\OptStrictfalse
-
 \newif\ifOptThm\OptThmtrue
 \newif\ifOptHyperref\OptHyperreftrue
 \newif\ifOptNatbib\OptNatbibtrue
 \newif\ifOptKeywords\OptKeywordstrue
 \newif\ifOptCMFonts\OptCMFontstrue
+
+\newif\ifOptStrict\OptStrictfalse
 
 \DeclareOption{beamer}{\OptBeamertrue\OptThmfalse\OptKeywordsfalse\OptHyperreffalse\OptCMFontsfalse}
 \DeclareOption{elsarticle}{\OptNatbibfalse}
@@ -144,14 +145,15 @@
 \fi
 %    \end{macrocode}
 % Style Joachim deprecates (defined via nag). |mysetminus| due to
-% Andrew Swann on tex.stackexchange.
+% Andrew Swann on tex.stackexchange. This draws a tikz-picture every
+% time (!) |\mysetminus| is employed. Andrew Swann also gives a
+% |savebox|-version that only draws once, but then you need to use
+% |pt| instead of |em| and appropriate scaleboxes?!
 %    \begin{macrocode}
 \newcommand*{\mysetminusD}{\hbox{\tikz{\draw[line width=0.06em,line cap=round] (0.3em,0) -- (0,0.6em);}}}
 \newcommand*{\mysetminusT}{\mysetminusD}
 \newcommand*{\mysetminusS}{\hbox{\tikz{\draw[line width=0.045em,line cap=round] (0.2em,0) -- (0,0.4em);}}}
 \newcommand*{\mysetminusSS}{\hbox{\tikz{\draw[line width=0.04em,line cap=round] (0.15em,0) -- (0,0.3em);}}}
-
-\newcommand*{\mysetminus}{\mathbin{\mathchoice{\mysetminusD}{\mysetminusT}{\mysetminusS}{\mysetminusSS}}}
 
 \ObsoleteCS[ugly]{setminus}{\protect\mysetminus}
 \ObsoleteCS[ugly]{emptyset}{\protect\varnothing}
@@ -160,9 +162,9 @@
 % No more plain \TeX\ and only AMS environments.
 %    \begin{macrocode}
 \ifOptStrict
-\RequirePackage[all,error]{onlyamsmath}
+\RequirePackage[all, error]{onlyamsmath}
 \else
-\RequirePackage[all]{onlyamsmath}
+\RequirePackage[all, warning]{onlyamsmath}
 \fi
 %    \end{macrocode}
 %
@@ -218,23 +220,33 @@
 % \subsection{develop, draft and edit}
 %
 % \DescribeMacro{todonotes} allows todo-marks with |\todo[]{}| and a
-% list of todos with |\listoftodos|, switched off by global option
-% |disable|.
+% list of todos with |\listoftodos|, switched on and off by global option
+% |draft| and |final|, respectively.
 %    \begin{macrocode}
 \ifOptBeamer
 \else
 \ifOptLlncs
-\RequirePackage[linecolor=black,backgroundcolor=white,textsize=tiny]{todonotes}
+\RequirePackage[linecolor=black,backgroundcolor=white,textsize=tiny,obeyDraft,obeyFinal]{todonotes}
 \else
-\RequirePackage[linecolor=black,backgroundcolor=white,textsize=tiny,textwidth=2.5\marginparwidth]{todonotes}
+\RequirePackage[linecolor=black,backgroundcolor=white,textsize=tiny,textwidth=2.5\marginparwidth,obeyDraft,obeyFinal]{todonotes}
 \fi
 \fi
+\RequirePackage{tikz}
+\makeatletter
+\let\@@tikzpicture\tikzpicture
+\def\tikzpicture{\catcode`\$=3 \@@tikzpicture}
+\makeatother
 %    \end{macrocode}
 % Using |\url| or |\verb| in todonotes requires |\protect|; try this
 % for |\eqref|, too.  The margins (position, not only size) seem to be
 % defined substantially different for article class and llncs class.
 % So, we better not modify the textwidth in the letter becaus this
 % yields bad layout.
+%
+% Todonotes will load |tikz| -- if we have selected the beamer option,
+% we load |tikz| manually. We need to adjust the charactercode of
+% |$| within tikzpicture, because later |onlyamsmath| will make |$|
+% active to check for |$$| -- this confuses tikz's |calc| package.
 %
 % The title "List of Todos" used to have problems with |natbib| and
 % the (ugly) fix was
@@ -263,18 +275,26 @@
 %
 % \DescribeMacro{showkeys} Modifies |\label|, |\ref|, |\pageref|, |\cite| and |\bibitem| to show the internal keys.
 %    \begin{macrocode}
-\RequirePackage[notref]{showkeys}
+\RequirePackage[notref,notcite]{showkeys}
 %    \end{macrocode}
 % Switch off by global option |final|.  (Default is option |draft|.)
 % We choose option |notref|, because this omits the keys on |\ref|,
 % where they are not of interest anyways and prevents a bug when
 % |\autoref| occurs at the beginning of a |theorem| environment
-% (effectively dropping the environment).  This package may conflict
+% (effectively dropping the environment).
+%
+% We also switch off the redefinition of |\cite| with |notcite|, since
+% the information with |\bibitem| is sufficient -- and also the cites
+% caused ``out of memory'' errors, when the package was loaded
+% \emph{before} |natbib|. The other fix would have been to load it
+% afterwards, but as we decided that we don't need them anyways, we
+% can just as well keep in it in the ``development'' section.
+%
+% This package may conflict
 % with |hyperref|.  The |hyperref| manual suggests to load (hyperref)
 % with the option |implicit=false|, tex.SE claims that this is one of
 % the few packages that should be loaded \emph{after} |hyperref|.
 % \todo{check that}
-% Note: |showlabels.sty| is similar, but shows the labels inline, affecting the formating.  |showkeys.sty| by Anonymous, dated 14 May 1988 is very similar.
 %
 % \begin{macro}{refcheck}
 % looks for useless labels, unlabelled equations, unused bibliography and puts keys of labels in the margin. (Todo: Find out how this works with the also loaded |showkeys|).
@@ -422,6 +442,7 @@
 % \end{macro}
 
 % \subsection{environments ``keywords'' and ``AMS'' for compatibility}
+% \label{sec:keywords}
 % two more environments for compatibility
 %    \begin{macrocode}
 \ifOptKeywords
@@ -430,7 +451,7 @@
     Classification.}}{}
 \fi
 %    \end{macrocode}
-% Past choices for AMS 2010 Subject Classifications, \url{http://www.ams.org/mathscinet/msc/msc2010.html}
+% Past choices for AMS 2010 Mathematics Subject Classifications, \url{http://www.ams.org/mathscinet/msc/msc2010.html}
 % \begin{description}
 %   \item[12Y05] Field theory and polynomials > Computational aspects
 %   of field theory and polynomials > Computational aspects of field theory and polynomials
@@ -439,6 +460,7 @@
 %   \item[05A15] Combinatorics > Enumerative combinatorics > Exact
 %   enumeration problems, generating functions
 %   \item[05C30] Combinatorics > Graph theory > Enumeration in graph theory
+%   \item[68W30] Computer Science > Algorithms > Symbolic computation and algebraic computation
 % \end{description}
 % Past choices for 1998 ACM Computing Classification System, \url{http://www.acm.org/about/class/ccs98-html}
 % \begin{description}
@@ -600,8 +622,28 @@
 % hypertext links to external documents and URLs.
 %    \begin{macrocode}
 \ifOptHyperref
-\RequirePackage[pdfpagelabels=false, bookmarksnumbered=true, breaklinks=true, pdfborder={0 0
-  0}, final]{hyperref}
+\RequirePackage[pdfpagelabels=true,
+bookmarksnumbered=true,
+breaklinks=true,
+hyperfootnotes=false,
+pdfborder={0 0 0},
+final]
+{hyperref}
+
+\hypersetup{%
+    %draft,	% = no hyperlinking at all (useful in b/w printouts)
+    % uncomment the follow line for display with colors
+    %colorlinks=true, linktocpage=true, pdfstartpage=3, pdfstartview=FitV,%
+    % uncomment the following line if you want to have black links (e.g., for printing)
+    colorlinks=false, linktocpage=false, pdfborder={0 0 0}, pdfstartpage=3, pdfstartview=FitV,%
+    breaklinks=true, pdfpagemode=UseNone, pageanchor=true, pdfpagemode=UseOutlines,%
+    plainpages=false, bookmarksnumbered, bookmarksopen=true, bookmarksopenlevel=1,%
+    hypertexnames=true, pdfhighlight=/O,%nesting=true,%frenchlinks,%
+    urlcolor=webbrown, linkcolor=RoyalBlue, citecolor=webgreen, %pagecolor=RoyalBlue,%
+    %urlcolor=Black, linkcolor=Black, citecolor=Black, %pagecolor=Black,%
+}
+% \pdfcompresslevel=9
+% \pdfadjustspacing=1
 \else
 \RequirePackage{bookmark}
 \fi
@@ -617,21 +659,21 @@ urlcolor=black,
 \newcommand*{\pdftitle}[1]{\gdef\@pdftitle{#1}}
 \newcommand*{\pdfauthor}[1]{\gdef\@pdfauthor{#1}}
 \newcommand*{\pdfkeywords}[1]{\gdef\@pdfkeywords{#1}}
-\newcommand*{\pdfsubject}[1]{\gdef\@pdfsubject{#1}}
 \AtBeginDocument{
   \hypersetup{
     pdftitle = {\@pdftitle},
     pdfauthor = {\@pdfauthor},
     pdfkeywords = {\@pdfkeywords},
-    pdfsubject = {\@pdfsubject}
+    pdfsubject = {\@pdfkeywords}
   }
 }
 \makeatother
 
 \addto\extrasenglish{%
-\def\sectionautorefname{Section}%
-\def\chapterautorefname{Chapter}%
-\def\algorithmautorefname{Algorithm}%
+  \def\sectionautorefname{Section}%
+  \def\chapterautorefname{Chapter}%
+  \def\algorithmautorefname{Algorithm}%
+  \def\subfigureautorefname{\figureautorefname}
 }
 % \RequirePackage{thm-autoref}
 %    \end{macrocode}
@@ -669,19 +711,23 @@ urlcolor=black,
 %
 % The pdf-information is taken from the |\title| and |\author|
 % arguments.  This works fine for the former, while for the latter, we
-% often have to be more explicit with |\pdfauthor|.  You are free to
-% insert (comma separated) pdfkeywords with |\pdfkeywords| -- from the
-% keyword environment? -- and a subject with |\pdfsubject| -- from the
-% AMS classification?.
+% often have to be more explicit with |\pdfauthor|. You are free to
+% insert (comma separated) pdfkeywords with |\pdfkeywords| -- in the
+% future. For simplicity, we write the same information to pdfsubject
+% (Yes, keywords and subject are not the same, but opinions on the
+% difference differ, so we just treat pdfkeywords, pdfsubject, and
+% keywords-environment) the same. Ideally (TODO) it should then be
+% sufficient to specify it once (say as new command keywords which
+% then maps to the three above).
 %
-% We
-% tried to have them before |\begin{document}| and then process them with |\AtBeginDocument| for
-% automatic |pdftitle| and |pdfauthor|. It turns out that 1. it also
-% worked when positioned otherwise and (more importantly) 2. almost
-% always required explicit overwriting since |\author| also contains
-% the address and |\title| may contain special symbols.  So, we forget
-% about the |\AtBeginDocument| workaround and define |pdftitle| and
-% |pdfauthor| explicitely.
+% We tried to have them before |\begin{document}| and then process
+%   them with |\AtBeginDocument| for automatic |pdftitle| and
+%   |pdfauthor|. It turns out that 1. it also worked when positioned
+%   otherwise and (more importantly) 2. almost always required
+%   explicit overwriting since |\author| also contains the address and
+%   |\title| may contain special symbols.  So, we forget about the
+%   |\AtBeginDocument| workaround and define |pdftitle| and
+%   |pdfauthor| explicitely.
 %
 % The README of the |hyperref| package mentioned bad support for the
 % |equation| environment and suggesting to replace it globally by
@@ -824,7 +870,7 @@ urlcolor=black,
 % Also very useful for sets, scalar products -- langle, rangle in
 % general --, and bra-ket-vectors is the package
 % \begin{macrocode}
-  \RequirePackage{braket}
+\RequirePackage{braket}
 % \end{macrocode}
 % The following commands produce inline versions |\bra{}|, |\ket{}|,
 % |\braket{}|, |\set{}| and their uppercase counterparts expand with
@@ -863,15 +909,30 @@ urlcolor=black,
 \newcommand*{\Fpx}{\mathbb{F}_{p}^{\times}}
 \newcommand*{\Fq}{\mathbb{F}_{q}}
 \newcommand*{\Fqx}{\mathbb{F}_{q}^{\times}}
+\newcommand*{\Fqbar}{\overline{\Fq}}
 \newcommand*{\Fr}{\mathbb{F}_{r}}
 \newcommand*{\Frx}{\mathbb{F}_{r}^{\times}}
+\newcommand*{\MM}{\mathsf{M}}
 \newcommand*{\NN}{\mathbb{N}}
+\newcommand*{\PP}{\mathbb{P}}
 \newcommand*{\QQ}{\mathbb{Q}}
 \newcommand*{\RR}{\mathbb{R}}
 \newcommand*{\ZZ}{\mathbb{Z}}
 %    \end{macrocode}
 % Already defined |\PP| as |\mathbb{P}| for the projective P, but
-% unfortunately |\AA| defined as some Angstrom \AA.
+% unfortunately |\AA| defined as some Angstrom \AA. We use $\MM(d)$ to
+% denote the number of ring operations that are sufficient to multiply
+% two polynomials of degree at most $d$ (over a ring $R$). We can take
+% $\MM(d) = O(d^{2})$ using the ``classical'' method, $\MM(d) = O(d
+% \log d \loglog d)$ using \cite{schstr71}, and $\MM(d) = O(d \log d
+% 8^{\log^{*}d})$ according to HarveyHoevenLecerf2014. CAVE: Do not
+% confuse this with the popular notation of $MM(d)$ to denote the
+% number of ring operations to multiply two square \emph{matrices} of
+% size $d \times d$. For that, we prefer the notation $O(d^{\omega})$
+% with $\omega$ the exponent of square matrix multiplication (over the
+% ring $R$). Here, we have classically $\omega \leq 3$, by Strassen
+% $\omega \leq \log_{2} 7$, and by LeGall2014 $\omega < 2.3728639$.
+
 % \item[Operators] \DescribeMacro{im, codim}
 % functions on sets or functions
 %    \begin{macrocode}
@@ -905,6 +966,7 @@ urlcolor=black,
 % some frequently used functions (while |\gcd| is already defined, |\lcm| is not), mainly from cryptography
 %    \begin{macrocode}
 \DeclareMathOperator{\ord}{ord}
+\DeclareMathOperator{\mult}{mult}
 \DeclareMathOperator{\lcm}{lcm}
 \DeclareMathOperator{\loglog}{loglog}
 \DeclareMathOperator{\dlog}{dlog}
@@ -1059,6 +1121,12 @@ urlcolor=black,
 % Remark: The extra row height avoids horizontal lines touching the capital
 % letters.
 %
+% \DescribeMacro{booktabs.sty} provides |\toprule|, |\midrule|, and
+% |\bottomrule|. These have better spacing than |\hrule| and tables
+% should have no other horizontal lines and absolutely no vertical lines.
+%    \begin{macrocode}
+\RequirePackage{booktabs}
+%    \end{macrocode}
 % \subsection{listings and algorithm2f}
 %
 % \section{Updating, Fine-Tuning and Bugfixing}
@@ -1073,8 +1141,9 @@ urlcolor=black,
 \def\CommentCutFile{\jobname.comment}
 %    \end{macrocode}
 % You may then define further environments (see |solution| and |exammod| in
-% |exercise-header.sty|). The |\begin{comment}| and |\end{comment}| should appear on lines of their
-% own. No starting spaces, nothing after it.
+% |exercise-header.sty|). Two important restriction on the syntax --
+% whose violation leads to hard-to-debug-errors -- are: The |\begin{comment}| and |\end{comment}| should appear on lines of their
+% own. And there should be no starting spaces and nothing after it.
 %
 % Alternative/CAVE: |verbatim.sty| also defines a
 % |comment|-environment. But, this package's main purpose are
@@ -1189,8 +1258,7 @@ urlcolor=black,
 %   12pt,
 %   a4paper,
 %   draft,
-%   % disable,    % disable todos
-%   % final,      % write *no* .sagetex.sage
+%   % final,      % disable todos and write *no* .sagetex.sage
 %   ]{article}
 %
 %   \usepackage{artmacs}    % should be the first to load
@@ -1221,7 +1289,7 @@ urlcolor=black,
 %
 %
 %   \bibliographystyle{cc2e}    % our extension of cc2
-%   \bibliography{journals,refs,lncs}
+%   \bibliography{journals,references,refs,lncs}
 %
 %   \listoftodos
 %
@@ -1243,14 +1311,23 @@ urlcolor=black,
 % the proof environment of the new documentclass respects that,
 % i.e. does not duplicate the tombstone; if it
 % does, you probably have to undefine |\qedhere| by |\(re)newcommand*{\qedhere}{}|
+% \item Check that optional arguments (citations) in theorem titles
+% do not contain additional brackets
 % \item If you want to exclude proofs search-and-replace |{proof}| by
 % |{comment}| (CAVE: nesting comments fails) or even easier try
 % |\excludecomment{proof}| in the header (CAVE: works with
 % |article.cls|, but fails with |sig-alternate.cls|).
-% \item Check the placement of figures and tables.
+% \item Check the placement of figures and tables. If tables are too
+% large, try |\small| and |\footnotesize| after |\begin{table}|.
 % \item IF NOT CAMERAREADY and you exceed the page limit, try the tips below
 % \item IF CAMERAREADY, check for and overfull/underfull boxes, widows, orphans, and bad
-% hyphenation; fix with |\pagebreak[1-4]|
+% hyphenation; fix with |\pagebreak[1-4]| or |\quad|'s if equation
+% numbers run into formulas. Remember that (automatic) breaking of inline math is
+% different from (manual) breaking in display math. For the latter, we
+% \emph{begin} the new line with $=$, $+$, etc. For the former, we
+% \emph{end} the old line with $=$, $+$, etc. \LaTeX\ does this
+% automatically for \emph{outer} (i.e. not enclosed in groups or
+% parenthesis) operators.
 % \item Carefully read your document -- again.
 % \end{enumerate}
 % To make stuff fit for a submission (not for the camera-ready
@@ -1273,7 +1350,7 @@ urlcolor=black,
 % \begin{verbatim}
 % $ perl -pe 's/(^|[^\\])%.*/$1%/' < old.tex > new.tex
 % \end{verbatim}
-% \item Replace |\bibliography{journals,refs,lncs}| with the content
+% \item Replace |\bibliography{journals,references,refs,lncs}| with the content
 % of |<file>.bbl|
 % \item include |artmacs.sty| and other nonstandard packages (|sagetex.sty|) as
 % |filecontents|, see below.
@@ -1353,8 +1430,7 @@ urlcolor=black,
 % \item if already appeared, then add journal (<journal> <vol> (<year>)
 % <pages>) and DOI (<num>.<num>/<whatever>) -- NOTE: this can be
 % updated without generating a new version
-% \item MSC-class: 12Y05 (Primary), 11T06, 05A15 (Secondary),
-% \item ACM-class: F.2.1, \url{http://www.acm.org/about/class/ccs98-html#F.2.1}
+% \item For MSC-class and ACM-class see \autoref{sec:keywords}
 % \end{enumerate}
 %
 %
@@ -1385,7 +1461,7 @@ urlcolor=black,
 %
 % \begin{itemize}
 % \item change |\documentclass[...]{article}| to
-%   |\documentclass[envcountsame, oribibl,runningheads,draft,disable,final]{llncs}|.  The option |oribibl| allows us to use our
+%   |\documentclass[envcountsame,oribibl,runningheads,draft,final]{llncs}|.  The option |oribibl| allows us to use our
 %   own favorite citation-style |cc2e|.
 % \item add option |llncs| to |\usepackag{artmacs}|.
 % \item split address from |\author| and put it into |\institute| (in
@@ -1530,7 +1606,7 @@ urlcolor=black,
 % \item Get lowercase letters in section headings with the patch
 % |lcsect.sty| (not in TeX Live, now in |tex/latex/misc|) and the command |\lcsection{TITLE WITH LOWERCASE MATH $k$}|.
 % \item Fix long optional arguments |[]| of environments by turning them into |()|.
-% \item Fix overfull hboxes by reformulating and |\linebreak[1-4]|.
+% \item For overfull hboxes see checklist at the beginning.
 % \end{itemize}
 %
 %
@@ -1582,7 +1658,7 @@ urlcolor=black,
 % time effort: less than 10 minutes.
 %
 % \begin{itemize}
-% \item change |\documentclass[...]{article}| to |\documentclass[draft, disable, final]{siamltex}|.
+% \item change |\documentclass[...]{article}| to |\documentclass[draft,final]{siamltex}|.
 % \item copy artmacs.sty into a
 % |\begin{filecontents}{\jobname--additional_macros.sty} ... \end{filecontents}| environment, insert it after
 % |\usepackage{filecontents}| and |\documentclass|
@@ -1635,7 +1711,7 @@ urlcolor=black,
 % \begin{itemize}
 % \item change documentclass to |elsarticle| (default options are:
 % a4paper, 10pt, oneside, onecolumn, preprint -- so remove all
-% ``your'' options except |draft|, |final|, |disable|.)
+% ``your'' options except |draft|, |final|.)
 % \item add |\biboptions{authoryear,round,longnamesfirst,sort,comma}|
 % immediately thereafter and pass option |elsarticle| to package
 % |artmacs|;  \todo{check} whether there is a possibility to just have
@@ -1797,12 +1873,15 @@ urlcolor=black,
 %   figure, caption, etc.
 % \end{wrapfigure}
 % \end{verbatim}
-% where l(eft) or (r)ight may also be specified i(nside) or o(utside) for two-sided documents to specify the position on the page.  The |overhang| moves the figure into the margin (but does \emph{not} add to |width|).
-
+% where l(eft) or (r)ight may also be specified i(nside) or o(utside)
+% for two-sided documents to specify the position on the page.  The
+% |overhang| moves the figure into the margin (but does \emph{not} add
+% to |width|).
+%
 % Alternatively:  I also the tried |floatflt| package, but got error messages even with a minimal example
 %
-% \bibliography{journals,refs,lncs}
 % \bibliographystyle{cc2e}
+% \bibliography{journals,references,refs,lncs}
 %
 % \todo{add as (no)cites} |de-tex-faq|, |l2tabu|, |amsldoc|, |Anselm Lingnau, \LaTeX\ Hacks|.
 %

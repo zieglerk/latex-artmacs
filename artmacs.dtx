@@ -155,6 +155,8 @@
 \newcommand*{\mysetminusS}{\hbox{\tikz{\draw[line width=0.045em,line cap=round] (0.2em,0) -- (0,0.4em);}}}
 \newcommand*{\mysetminusSS}{\hbox{\tikz{\draw[line width=0.04em,line cap=round] (0.15em,0) -- (0,0.3em);}}}
 
+\newcommand*{\mysetminus}{\mathbin{\mathchoice{\mysetminusD}{\mysetminusT}{\mysetminusS}{\mysetminusSS}}}
+
 \ObsoleteCS[ugly]{setminus}{\protect\mysetminus}
 \ObsoleteCS[ugly]{emptyset}{\protect\varnothing}
 \ObsoleteCS[bad style]{len}{\protect\abs}

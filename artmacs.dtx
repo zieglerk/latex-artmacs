@@ -219,6 +219,37 @@
 % Maybe some sort of times roman, but discouraged for its lack of support for
 % amsmath. (according to mathtools.pdf)  Same goes for |pxfonts|.
 %
+% \subsection{Colors and graphics}
+%
+% % Before loading todonotes, we load some packages, where we want to
+% select some options that todonots would set otherwise to default. \todo{Say something about tikz \& PSTricks here.}
+%
+% \DescribeMacro{xcolor} Change fontcolor within a group with
+% |\color{red}| or set colors in TikZ with |fill=red!20|.
+%    \begin{macrocode}
+\RequirePackage[svgnames]{xcolor}
+%    \end{macrocode}
+% The option |svgnames| adds plenty to the 19 predefined names. In
+% particular many variants with ``Dark''/``Light''-prefix.
+%
+% \DescribeMacro{graphicx} l2tabu: Use |graphicx.sty| instead of
+% |epsf.sty|, |psfix.sty| or |epsfig.sty|.  Alternatively
+% |graphics.sty|.  See |texdoc graphicx| for differences.  Since we
+% choose |latex/dvips/ps2pdf| over |pdflatex|, we specify option
+% |dvips| and are restricted to |eps| and |ps| graphics.  Switches for
+% |pdflatex| -- with respect to arxiv -- are on the todo list;
+% requires option |pdftex| and also modifications to hyperref.
+%
+%    \begin{macrocode}
+\RequirePackage[final]{graphicx}
+%    \end{macrocode}
+%
+% We want to display figures/pictures even in draft mode. Then
+% |auto-pst-pdf| doesn't work any more, because |final| forces
+% compilation here (overriding |off|) and we have to enable
+% Shell-escape every time. That's annoying. But hopefully, there won't
+% be too much auto-pst-pdf in the future.
+%
 % \subsection{develop, draft and edit}
 %
 % \DescribeMacro{todonotes} allows todo-marks with |\todo[]{}| and a
@@ -245,10 +276,14 @@
 % So, we better not modify the textwidth in the letter becaus this
 % yields bad layout.
 %
-% Todonotes will load |tikz| -- if we have selected the beamer option,
+% Todonotes will load |tikz| and |xcolor| -- if we have selected the beamer option,
 % we load |tikz| manually. We need to adjust the charactercode of
 % |$| within tikzpicture, because later |onlyamsmath| will make |$|
 % active to check for |$$| -- this confuses tikz's |calc| package.
+% Todonotes is a really heavy package, loading lots of stuff (I guess
+% almost the complete Tikz-stuff and also graphicx).  It also seems to set options for
+% the graphicx package to be loaded later.
+%
 %
 % The title "List of Todos" used to have problems with |natbib| and
 % the (ugly) fix was
@@ -269,11 +304,6 @@
 % packages, but seems incompatible with the environments of the
 % cc-class.  How to switch it off?  Process all todos? -- Does an
 % empty list occur?
-%
-% Todonotes is a really heavy package, loading lots of stuff (I guess
-% almost the complete Tikz-stuff and also graphicx).  It also seems to set options for
-% the graphicx package to be loaded later.
-%
 %
 % \DescribeMacro{showkeys} Modifies |\label|, |\ref|, |\pageref|, |\cite| and |\bibitem| to show the internal keys.
 %    \begin{macrocode}
@@ -618,45 +648,60 @@
 % \subsection{Cross-references with hyperref.sty}
 %
 %\begin{macro}{hyperref.sty}
-% The hyperref package extends the functionality of the \LaTeX\
-% cross-referencing commands to produce commands which a driver can turn into
-% hypertext links; it also provedes new commands to allow the user to write
-% hypertext links to external documents and URLs.
+%  The hyperref package extends the functionality of the \LaTeX\
+%  cross-referencing commands to produce commands which a driver can
+%  turn into hypertext links; it also provedes new commands to allow
+%  the user to write hypertext links to external documents and
+%  URLs. We \emph{always} want that package, but some document classes
+%  (beamer, classicthesis)
+%  load it already with conflicting options and we have to handle the
+%  configuration wtih hypersetup. That's we -- depending on the option
+%  of the artmacs-package -- hyperref is loaded (explicitly) or
+%  assumed (implicitely). TODO: if we can move all loading options of
+%  hyperref to hypersetup, we don't need that distinction any more, I
+%  guess?!
+%
+%  We definitely want the option |final|, because in |draft|
+%  hyperlinking is turned of and we might surprised when transitioning
+%  to the final version. We once had a fancy backref solution from
+%  classicthesis. It's an overkill for short articles. If you ever
+%  want to turn it back on, a quick solution is the option
+%  |backref=page| to hyperref.
 %    \begin{macrocode}
 \ifOptHyperref
-\RequirePackage[pdfpagelabels=true,
-bookmarksnumbered=true,
-breaklinks=true,
-hyperfootnotes=false,
-pdfborder={0 0 0},
-final]
+\RequirePackage[
+final,
+pdfpagelabels=true,    % rumor has it: beamer does not like that
+]
 {hyperref}
 
-\hypersetup{%
-    %draft,	% = no hyperlinking at all (useful in b/w printouts)
-    % uncomment the follow line for display with colors
-    %colorlinks=true, linktocpage=true, pdfstartpage=3, pdfstartview=FitV,%
-    % uncomment the following line if you want to have black links (e.g., for printing)
-    colorlinks=false, linktocpage=false, pdfborder={0 0 0}, pdfstartpage=3, pdfstartview=FitV,%
-    breaklinks=true, pdfpagemode=UseNone, pageanchor=true, pdfpagemode=UseOutlines,%
-    plainpages=false, bookmarksnumbered, bookmarksopen=true, bookmarksopenlevel=1,%
-    hypertexnames=true, pdfhighlight=/O,%nesting=true,%frenchlinks,%
-    urlcolor=webbrown, linkcolor=RoyalBlue, citecolor=webgreen, %pagecolor=RoyalBlue,%
-    %urlcolor=Black, linkcolor=Black, citecolor=Black, %pagecolor=Black,%
-}
-% \pdfcompresslevel=9
-% \pdfadjustspacing=1
 \else
 \RequirePackage{bookmark}
+
 \fi
-\hypersetup{colorlinks=true,%
-linkcolor=black,%
-citecolor=black,%
-filecolor=black,%
-urlcolor=black,
+
+\hypersetup{%
+linktocpage=false,    % headlines (not page numbers) are links
+pdfborder={0 0 0},    % no boxes around links
+breaklinks=true,      % linebreak -- otherwise ugly
+bookmarksnumbered=true,
+pdfstartpage=3, pdfstartview=FitV,%
+    pdfpagemode=UseNone, pageanchor=true, pdfpagemode=UseOutlines,%
+    plainpages=false, bookmarksopen=true, bookmarksopenlevel=1,%
+    hypertexnames=true, pdfhighlight=/O,%nesting=true,%frenchlinks,%
 }
+
+\hypersetup{
+colorlinks=true,%
+linkcolor=black,%RoyalBlue
+citecolor=black,%webgreen
+filecolor=black,%
+urlcolor=black,%webbrown
+}
+
 \DeclareUrlCommand\email{\urlstyle{tt}}
 \DeclareUrlCommand\directory{\urlstyle{tt}}
+
 \makeatletter
 \newcommand*{\pdftitle}[1]{\gdef\@pdftitle{#1}}
 \newcommand*{\pdfauthor}[1]{\gdef\@pdfauthor{#1}}
@@ -678,22 +723,21 @@ urlcolor=black,
   \def\algorithmautorefname{Algorithm}%
   \def\subfigureautorefname{\figureautorefname}
 }
-% \RequirePackage{thm-autoref}
 %    \end{macrocode}
 % For hypersetup to work properly, the author and title command have
 % to occur \emph{before} the begin of document.  With a few
 % exceptions, it is recommended to load |hyperref| last.
 %
-%
 % For the beamer class, we need the |bookmark| package to be able to
 % manually add |section*| to the pdf-bookmarks.  The capabilities of
-% |hyperref| to do so are turned of by the beamer class.%
+% |hyperref| to do so are turned of by the beamer class.
 %
-% The optional argument loads the necessary drivers for the different formats.
-% Automatically loads the package |url| for which we define the additional commands |\email| and |\directory|.
-% Breaking links in references works fine via pdflatex, but via dvips
-% and ps2pdf the line breaking fails. The package |breakurl| fixes
-% that, but we don't require that fix any more.
+% The optional argument loads the necessary drivers for the different
+% formats.  Automatically loads the package |url| for which we define
+% the additional commands |\email| and |\directory|. Breaking links in
+% references works fine via pdflatex, but via dvips and ps2pdf the
+% line breaking fails. The package |breakurl| fixes that, but we don't
+% require that fix any more.
 %
 % Remark: Should be loaded as late as possible since its job is to
 % redefine many \LaTeX\ commands.  There used to be issues with the
@@ -953,11 +997,12 @@ urlcolor=black,
 \newcommand*{\prob}[2][]{\operatorname{prob}_{#1} \{ #2 \}}
 \newcommand*{\jacobi}[2]{\left( \frac{#1}{#2} \right)}
 \DeclareMathOperator{\chara}{char}
-\newcommand*{\bigO}{O}
-\newcommand*{\smallo}{o}
-\newcommand*{\softO}{O\sptilde}
+\newcommand*{\bigOh}[1]{O\left(#1\right)}
+\newcommand*{\smalloh}[1]{o\left(#1\right)}
+\newcommand*{\softOh}[1]{O\sptilde\left(#1\right)}
 %    \end{macrocode}
-% the latter requires |amsxtra|.
+% the latter requires |amsxtra| and we prefer it to $\widetilde{O}$
+% because accents on capital letters frequently mess up vertical spacing.
 % \item[operators] \DescribeMacro{dcup}
 % disjoint union
 %    \begin{macrocode}
@@ -970,6 +1015,7 @@ urlcolor=black,
 %    \begin{macrocode}
 \DeclareMathOperator{\ord}{ord}
 \DeclareMathOperator{\mult}{mult}
+\DeclareMathOperator{\lc}{lc}
 \DeclareMathOperator{\lcm}{lcm}
 \DeclareMathOperator{\loglog}{loglog}
 \DeclareMathOperator{\dlog}{dlog}
@@ -1014,15 +1060,18 @@ urlcolor=black,
 % autoref uses algorithmautorefname.  No need to (re)define
 % algorithm2eautorefname.  The option |algo2e| is employed for better
 % compatibility when translating to classes which predefine an
-% |algorithm|-environment. The two-column version of |sig-alternate|
+% |algorithm|-environment. The option |vlined| ends loops with a small
+% vertical line instead of the keyword |END|. We prefer that for space
+% and clarity. The two-column version of |sig-alternate|
 % messes up |algomargin| such that two digit line numbers intersect
 % with the border. We fix that.
 %    \begin{macrocode}
 \ifOptBeamer\else
-\RequirePackage[linesnumbered, ruled, algo2e, algosection]{algorithm2e}
+\RequirePackage[linesnumbered,vlined,ruled,algo2e,algosection]{algorithm2e}
 \SetKwInput{Input}{Input}    % use as \Input{bar} and \Output{foo}
 \SetKwInput{Output}{Output}  % ... and finish with \Return foo\;
 \SetKw{To}{to}    % we want lowercase for this keyword
+\SetKw{break}{break}    % should also be a keyword
 \DontPrintSemicolon
 \renewcommand*{\AlgoLineautorefname}{step}
 \ifOptSigAlterFix
@@ -1061,42 +1110,6 @@ urlcolor=black,
 % Remark: If you want to center the content of floating objects like figures
 % and tables, use |\centering| instead of the |center|-environment, since the
 % latter introduces vertical space, which is unintended in most cases.
-%
-%
-%
-%
-%
-% \subsection{Colors and graphics}
-%
-% \todo{Say something about tikz \& PSTricks here.}
-%
-% \DescribeMacro{xcolor} Change fontcolor within a group with
-% |\color{red}|.
-%    \begin{macrocode}
-\RequirePackage{xcolor}
-%    \end{macrocode}
-%
-% \DescribeMacro{graphicx} l2tabu: Use |graphicx.sty| instead of
-% |epsf.sty|, |psfix.sty| or |epsfig.sty|.  Alternatively
-% |graphics.sty|.  See |texdoc graphicx| for differences.  Since we
-% choose |latex/dvips/ps2pdf| over |pdflatex|, we specify option
-% |dvips| and are restricted to |eps| and |ps| graphics.  Switches for
-% |pdflatex| -- with respect to arxiv -- are on the todo list;
-% requires option |pdftex| and also modifications to hyperref.
-%
-%    \begin{macrocode}
-\RequirePackage{graphicx}
-%    \end{macrocode}
-%
-% Recently (?), the option |dvips| seems to clash with the previous
-% loading in |todonotes| -- we omit any explicit option and hope that
-% the package can figure the correct driver itself.
-%
-% If you want to display figures even in draft-mode, use
-% |\PassOptionsToPackage{final}{graphicx}| before loading artmacs.
-% This probably also works with |tikz| and |pstricks|, but no with
-% |auto-pst-pdf|, because |final| forces compilation here (overriding
-% |off|) and we have to enable Shell-escape every time.  That's annoying.
 %
 % \subsection{Tables: tabular (default: text) and array (default: math)}
 %
@@ -1239,6 +1252,7 @@ urlcolor=black,
 %
 % \subsubsection{In top-folder (for this and all future versions)}
 % \begin{enumerate}
+% \item Check against checklist in |write_a_paper.org|.
 % \item Have somebody else read it.
 % \item Match against skeleton in \autoref{fig:article}.
 % \item Check with |$ pdfinfo <short_title>.pdf| for title, author.

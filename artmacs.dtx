@@ -75,8 +75,9 @@
 %   we prefer (mainly inspired by the Computational Complexity class)
 %   when finalizing.  We base everything on the article class for
 %   maximal portability.  None of the packages is by me -- see the
-%   list of packages \todo{make this a section in the appendix} for the respective authors.  My only contribution
-%   is to choose an order and find options that are compatible.
+%   list of packages \todo{make this a section in the appendix} for
+%   the respective authors.  My only contribution is the selection,
+%   arrangement, and choice of compatible options.
 % \end{abstract}
 %
 % \tableofcontents
@@ -103,6 +104,7 @@
 \newif\ifOptChapter\OptChapterfalse
 
 \newif\ifOptThm\OptThmtrue
+\newif\ifOptGraphicx\OptGraphicxtrue
 \newif\ifOptHyperref\OptHyperreftrue
 \newif\ifOptNatbib\OptNatbibtrue
 \newif\ifOptKeywords\OptKeywordstrue
@@ -110,8 +112,8 @@
 
 \newif\ifOptStrict\OptStrictfalse
 
-\DeclareOption{beamer}{\OptBeamertrue\OptThmfalse\OptKeywordsfalse\OptHyperreffalse\OptCMFontsfalse}
-\DeclareOption{elsarticle}{\OptNatbibfalse}
+\DeclareOption{beamer}{\OptBeamertrue\OptThmfalse\OptKeywordsfalse\OptHyperreffalse\OptCMFontsfalse\OptGraphicxfalse}
+\DeclareOption{elsarticle}{\OptNatbibfalse\OptGraphicxfalse}
 \DeclareOption{sig-alternate}{\OptKeywordsfalse\OptSigAlterFixtrue}
 \DeclareOption{llncs}{\OptLlncstrue}
 \DeclareOption{classicthesis}{\OptHyperreffalse\OptCMFontsfalse}
@@ -222,15 +224,23 @@
 % \subsection{Colors and graphics}
 %
 % % Before loading todonotes, we load some packages, where we want to
-% select some options that todonots would set otherwise to default. \todo{Say something about tikz \& PSTricks here.}
+% select some options that todonotes would set otherwise to default. \todo{Say something about tikz \& PSTricks here.}
 %
 % \DescribeMacro{xcolor} Change fontcolor within a group with
 % |\color{red}| or set colors in TikZ with |fill=red!20|.
 %    \begin{macrocode}
+\ifOptBeamer
+\else
 \RequirePackage[svgnames]{xcolor}
+\fi
 %    \end{macrocode}
 % The option |svgnames| adds plenty to the 19 predefined names. In
-% particular many variants with ``Dark''/``Light''-prefix.
+% particular many variants with ``Dark''/``Light''-prefix. Note: In
+% comparison to the |color|-package, its documentation states: ``Its
+% purpose can be summarized as to maintain the characteristics of
+% color, while providing additional features and flexibility with
+% (hopefully) easy-to-use interfaces.'' This package is automatically
+% loaded by |beamer|.
 %
 % \DescribeMacro{graphicx} l2tabu: Use |graphicx.sty| instead of
 % |epsf.sty|, |psfix.sty| or |epsfig.sty|.  Alternatively
@@ -241,7 +251,10 @@
 % requires option |pdftex| and also modifications to hyperref.
 %
 %    \begin{macrocode}
+\ifOptGraphicx
 \RequirePackage[final]{graphicx}
+\else
+\fi
 %    \end{macrocode}
 %
 % We want to display figures/pictures even in draft mode. Then
@@ -249,6 +262,10 @@
 % compilation here (overriding |off|) and we have to enable
 % Shell-escape every time. That's annoying. But hopefully, there won't
 % be too much auto-pst-pdf in the future.
+%
+% We can't load |graphicx| with this option for |beamer|, because it
+% gets loaded later (at least, when |tikz| is loaded) and then we have
+% an option clash.
 %
 % \subsection{develop, draft and edit}
 %
@@ -483,25 +500,6 @@
     Classification.}}{}
 \fi
 %    \end{macrocode}
-% Past choices for AMS 2010 Mathematics Subject Classifications, \url{http://www.ams.org/mathscinet/msc/msc2010.html}
-% \begin{description}
-%   \item[12Y05] Field theory and polynomials > Computational aspects
-%   of field theory and polynomials > Computational aspects of field theory and polynomials
-%   \item[11T06] Number theory > Finite fields and commutative rings
-%   (number-theoretic aspects) > Polynomials
-%   \item[05A15] Combinatorics > Enumerative combinatorics > Exact
-%   enumeration problems, generating functions
-%   \item[05C30] Combinatorics > Graph theory > Enumeration in graph theory
-%   \item[68W30] Computer Science > Algorithms > Symbolic computation and algebraic computation
-% \end{description}
-% Past choices for 1998 ACM Computing Classification System, \url{http://www.acm.org/about/class/ccs98-html}
-% \begin{description}
-%   \item[F.2.1] Theory of Computation > Analysis of Algorithms and
-%   Problem Complexity > Numerical Algorithms and Problems
-%   (Computation of transforms, Computations in finite fields,
-%   Computations on matrices, Computations on polynomials,
-%   Number-theoretic computations)
-% \end{description}
 %
 % \section{Typsetting Math}
 %
@@ -570,7 +568,7 @@
 %also passes its options to |amsmath|.
 %    \begin{macrocode}
 \RequirePackage{mathtools}
-\mathtoolsset{showonlyrefs, showmanualtags}
+\mathtoolsset{showonlyrefs, showmanualtags, mathic}
 %    \end{macrocode}
 % Per default, two options are set, namely |fixamsmath| to fix two bugs in amsmath and |disallowspaces| to prevent a first line in an equation starting with |[p]| to be interpreted as optional argument to the environment.
 %
@@ -595,6 +593,12 @@
 % package.  The easist fix is |\usepackage[overload,ntheorem]{empheq}|
 % before loading |ntheorem|, but we don't need that, since we don't
 % use |ntheorem|.
+%
+% Math within italics text comes with automatic italic correction at
+% the end, but not at the beginning, so that the right space in
+% textit-math-textit is too wide. The |mathic|-option also adds the
+% italic correction to the beginning, but requires typesetting a la
+% |\(math\)| instead of |$math$| to do so.
 %
 % The standard implementations for |\underbrace| and |\overbrace| have
 % some deficiencies: all lengths are fixed and optimized for 10 pt
@@ -668,6 +672,8 @@
 %  want to turn it back on, a quick solution is the option
 %  |backref=page| to hyperref.
 %    \begin{macrocode}
+\PassOptionsToPackage{hyphens}{url}
+
 \ifOptHyperref
 \RequirePackage[
 final,
@@ -724,6 +730,9 @@ urlcolor=black,%webbrown
   \def\subfigureautorefname{\figureautorefname}
 }
 %    \end{macrocode}
+% The hyperref-package loads the url package for typesetting. We allow
+% breaking URLs at hyphens, since many DOIs require that to fit on a line.
+%
 % For hypersetup to work properly, the author and title command have
 % to occur \emph{before} the begin of document.  With a few
 % exceptions, it is recommended to load |hyperref| last.
@@ -997,9 +1006,9 @@ urlcolor=black,%webbrown
 \newcommand*{\prob}[2][]{\operatorname{prob}_{#1} \{ #2 \}}
 \newcommand*{\jacobi}[2]{\left( \frac{#1}{#2} \right)}
 \DeclareMathOperator{\chara}{char}
-\newcommand*{\bigOh}[1]{O\left(#1\right)}
-\newcommand*{\smalloh}[1]{o\left(#1\right)}
-\newcommand*{\softOh}[1]{O\sptilde\left(#1\right)}
+\newcommand*{\bigOh}[1]{O(#1)}
+\newcommand*{\smalloh}[1]{o(#1)}
+\newcommand*{\softOh}[1]{O\sptilde(#1)}
 %    \end{macrocode}
 % the latter requires |amsxtra| and we prefer it to $\widetilde{O}$
 % because accents on capital letters frequently mess up vertical spacing.
@@ -1246,18 +1255,22 @@ urlcolor=black,%webbrown
 % \clearpage
 % \appendix
 %
-% \section{Conversion and Submission}
+% \section{Check, Convert, and Submit}
 %
-% \subsection{Three Checklists}
 %
-% \subsubsection{In top-folder (for this and all future versions)}
+%
+% \subsection{Before Submission}
 % \begin{enumerate}
-% \item Check against checklist in |write_a_paper.org|.
-% \item Have somebody else read it.
-% \item Match against skeleton in \autoref{fig:article}.
+% \item Check against checklist in |write_a_paper.org| and have
+% somebody else read it.
+% \item Match against skeleton in \autoref{fig:article}. In
+% particular, specify keywords and ACM class.
 % \item Check with |$ pdfinfo <short_title>.pdf| for title, author.
 % \item Check that tables and figures are referenced and that their
 % captions are self-explanatory.
+% \item Spellcheck the body with |M-x ispell-region|. (|i| to insert,
+%   |SPC| to skip, , |a| to accept for session)
+% \item Check grammar with \url{https://www.languagetool.org/} or \url{http://nitpickertool.com/live.html}
 % \item Check log-file for nag's warnings, multiply-defined labels,
 % etc. (but not overfull/underfull boxes yet)
 % \item |$ chktex foo.tex| with |ChkTeX| by Jens
@@ -1265,9 +1278,14 @@ urlcolor=black,%webbrown
 %   version (1.6.4) by Baruch Even available from
 %   \url{http://baruch.ev-en.org/proj/chktex/} dates from 2007);
 % \item to test: |$ lacheck foo.tex| also shipping with TeX Live
-% \item Spellcheck the body with |M-x ispell-region|. (|i| to insert,
-%   |SPC| to skip, , |a| to accept for session)
-% \item Check grammar with \url{https://www.languagetool.org/} or \url{http://nitpickertool.com/live.html}
+% \item Copy |<short_title>.tex| to subfolder and rename according to
+% |research/README|; |$ git tag| the original in top-folder.
+% \item make folder |YYYY-MM-DD--v<num>| in |submitted_to/arxiv|
+% \item copy therein <file>.tex, <file>-pics.pdf, and artmacs.sty
+% \item generate <file>.bbl
+% \item if sagetex was involved, copy therein sagetex.sty,
+% .sagetex.sout, and folder sage-plots-for-<file>.tex
+% \item adjust path of |load('*.sage')|
 % \end{enumerate}
 %
 % \begin{figure}
@@ -1317,14 +1335,13 @@ urlcolor=black,%webbrown
 % \label{fig:article}
 % \end{figure}
 %
-% \todo{what about the ACM class?}
 %
-% \subsubsection{In sub-folder -- submission/class-specific}
+%
+% \subsection{After conversion}
 % \begin{enumerate}
-% \item Copy |<short_title>.tex| to subfolder and rename according to
-% |research/README|; |$ git tag| the original in top-folder.
-% \item adjust path of |load('*.sage')|
 % \item Convert |documentclass| as described below.
+% \item if the bbl gives you trouble, then copy it (see below) and
+% edit manueally
 % \item If you use |\qedhere| from the |amsthm|-package, check that
 % the proof environment of the new documentclass respects that,
 % i.e. does not duplicate the tombstone; if it
@@ -1360,8 +1377,16 @@ urlcolor=black,%webbrown
 % \url{http://www.eng.cam.ac.uk/help/tpl/textprocessing/squeeze.html}.
 %
 %
-% \subsubsection{Shipping the sources}
+% \subsection{Shipping the sources}
 % \begin{enumerate}
+% \item add |\pdfoutput=1| to the first line of
+% <file>.tex
+% \item minimal cleanup: remove emacs backup file |<file>.tex~|, since
+%   it will be automatically renamed after unpacking and processed as
+%   additional tex-file thereby \emph{doubling} the output.
+% \item |tar -zcf <file>.tar.gz *| or |zip <file>.zip -r *| and upload
+%   (no need, to clean up here, since the arxiv is very forgiving, see
+%   next point)
 % \item Remove everything after the
 % first |\end{document}| and all comments. The arXiv's FAQ suggest the
 % following perl-command:
@@ -1398,12 +1423,9 @@ urlcolor=black,%webbrown
 % |\def\newblock{\hskip .11em plus .33em minus .07em}| right after the
 % document class.
 %
-% There seems to be an untested fancier solution with |arlatex|.
-% \todo{Usage/Comparison of arlatex}
-% \begin{enumerate}
-% \item download arlatex and bundledoc from ctan
-% \item copy to /usr/local/bin and make it executable and readable
-% \end{enumerate}
+% There seems to be an untested fancier solution with the programs
+% |arlatex| and |bundletex|, see
+% \url{ftp://ftp.fu-berlin.de/tex/CTAN/support/bundledoc/arlatex.pdf}.
 %
 %
 %
@@ -1414,25 +1436,17 @@ urlcolor=black,%webbrown
 % Do the checklist and read the hints.
 %
 % Submission deadline is Monday through Friday at 16:00 EST;
-% visibility starts at 20:00 EST of the same day (where Friday-Sunday
-% are "the same day", so friday submissions before 16:00 appear on
-% sunday evening and friday submission after 16:00 appear on monday evening).
+% visibility starts at 20:00 EST of the same day (where the weekend
+% Friday--Sunday is a ``single day'', so that friday submissions
+% before 16:00 appear on sunday evening and friday submission after
+% 16:00 appear on monday evening).
 %
 % This is quick and easy (<1 hour), since the arxiv has a complete TeX
 % Live system, can process with pdfLaTeX, and respects subdirectories
 % (when uploading .tar.gz).
 % \begin{enumerate}
-% \item make folder |YYYY-MM-DD--v<num>| in |submitted_to/arxiv|
-% \item copy therein <file>.tex, <file>.bbl, <file>-pics.pdf, and artmacs.sty
-% \item if sagetex was involved, copy therein sagetex.sty,
-% .sagetex.sout, and folder sage-plots-for-<file>.tex
-% \item add |\pdfoutput=1| to the first line of
-% <file>.tex
-% \item minimal cleanup: remove emacs backup file |<file>.tex~|, since
-%   it will be automatically renamed after unpacking and processed as
-%   additional tex-file thereby \emph{doubling} the output.
-% \item |tar -zcf <file>.tar.gz *| and upload (no need, to clean up
-% here, since the arxiv is very forgiving, see next point)
+% \item check before submission as above
+% \item ship sources as tar, see above
 % \item arxiv processes after decompressing:
 % \begin{itemize}
 % \item discards unnecessary auxiliary files (basically all of type ``unknown'')
@@ -1719,11 +1733,11 @@ urlcolor=black,%webbrown
 %
 % time effort: less than 5 minutes.
 %
-% Download most recent |elsarticle.cls| and |elsarticle-harv.bst| from
-% Elsevier.  (Both are also
-% part of TexLive and documentation is therefore conveniently provided
-% with |$ texdoc elsarticle|.)  Do \emph{not} use the outdated |elsart.cls|, although
-% provided on the JSC-webpage.  They also accept the more recent and
+% Download the most recent |elsarticle.cls| and |elsarticle-harv.bst|
+% from Elsevier, because TeXLive's versions are out-of-date (v1.20
+% from 2008/10/13 compared to v2.0 from 2012/08/15; last checked
+% 2015/09/30). Do \emph{not} use the outdated |elsart.cls|, although
+% provided on the JSC-webpage. They also accept the more recent and
 % more compatible |elsarticle.cls|.
 
 % \begin{itemize}
@@ -1738,12 +1752,19 @@ urlcolor=black,%webbrown
 % passed as option to the |documentclass| (saving one line and
 % improving consistency).
 % \item Change |\bibliographystyle| to |elsarticle-harv|
-% \item Expand author field to |\author[1]{foo\corref{cor}}|, |\author[2]{bar}|, etc. and
-% add |\ead| after each author, |\address[1]| for each aviliation and
-% |\cortext[cor]{Corresponding author}|.
+% \item Split author field into |\author[1]{FirstName1 LastName1\corref{cor}}|, |\author[2]{FirstName2 LastName2}|,
+%   etc. and add |\address[1]{University\\Town}| and
+%   |\address[2]{University\\Town}|, respectively. Add email-address
+%   |\ead{a@bc.de}| and homepage |\ead[url]{www.home.page}| after each
+%   author. Finally, indicate corresponding author like above and
+%   specify text |\cortext[cor]{Corresponding author}|.
 % \item Change |keywords|-environment to |keyword|; change commas to
-% |\sep|
-% \item Enclose |author|, |title|, |address|, |abstract|, |keyword| in |frontmatter|-environment
+%   |\sep|. Add line -- within this environment -- giving the
+%   MSC-classification |\MSC[2010] 11T06\sep 12Y05\sep 68W30|.
+% \item Enclose |author|, |title|, |address|, |abstract|, |keyword| in
+% |frontmatter|-environment and comment |\maketitle|.
+% \item The .bbl needs some post-processing: remove |\newline|s and
+% replace |and| by |\&|.
 % \end{itemize}
 %
 % \subsection{use with beamer.cls}

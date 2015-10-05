@@ -1266,8 +1266,9 @@ urlcolor=black,%webbrown
 % \item Match against skeleton in \autoref{fig:article}. In
 % particular, specify keywords and ACM class.
 % \item Check with |$ pdfinfo <short_title>.pdf| for title, author.
-% \item Check that tables and figures are referenced and that their
-% captions are self-explanatory.
+% \item Check that tables, figures, and algorithms are referenced and
+%   that their captions are self-explanatory. (We check the placement
+%   later.)
 % \item Spellcheck the body with |M-x ispell-region|. (|i| to insert,
 %   |SPC| to skip, , |a| to accept for session)
 % \item Check grammar with \url{https://www.languagetool.org/} or \url{http://nitpickertool.com/live.html}
@@ -1352,8 +1353,10 @@ urlcolor=black,%webbrown
 % |{comment}| (CAVE: nesting comments fails) or even easier try
 % |\excludecomment{proof}| in the header (CAVE: works with
 % |article.cls|, but fails with |sig-alternate.cls|).
-% \item Check the placement of figures and tables. If tables are too
-% large, try |\small| and |\footnotesize| after |\begin{table}|.
+% \item
+% \item Check the placement of figures, tables, and algorithms,
+%   usually you want |[h!]|.If tables are too large, try |\small| and
+%   |\footnotesize| after |\begin{table}|.
 % \item IF NOT CAMERAREADY and you exceed the page limit, try the tips below
 % \item IF CAMERAREADY, check for and overfull/underfull boxes, widows, orphans, and bad
 % hyphenation; fix with |\pagebreak[1-4]| or |\quad|'s if equation
@@ -1363,6 +1366,10 @@ urlcolor=black,%webbrown
 % \emph{end} the old line with $=$, $+$, etc. \LaTeX\ does this
 % automatically for \emph{outer} (i.e. not enclosed in groups or
 % parenthesis) operators.
+% \item IF CAMERAREADY, enable the italics correction -- due to
+% mathtools -- in theorem-like environments by replacing all |$f$|
+% with |\(f\)|. In emacs a regexp-search-replace of |\$| with
+% |\,(if (evenp \#) "\\\(" "\\\)")| does the job.
 % \item Carefully read your document -- again.
 % \end{enumerate}
 % To make stuff fit for a submission (not for the camera-ready

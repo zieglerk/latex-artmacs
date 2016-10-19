@@ -952,7 +952,9 @@ urlcolor=black,%webbrown
 \RequirePackage{amssymb, amsfonts, amsxtra}
 %    \end{macrocode}
 % (Re)defines symbols; Most notably \LaTeX's |\Box| is superseded by
-% |\square|.  Furthermore, |amssymb| loads |amsfonts|.
+% |\square|.  Furthermore, |amssymb| loads |amsfonts|. For over 2000
+% more symbols, load the |stix|-package, available since TeX Live
+% 2014.
 %
 % \begin{description}
 % \item[Sets] \DescribeMacro{NN, ZZ, QQ, RR, CC, FF}
@@ -1201,13 +1203,6 @@ urlcolor=black,%webbrown
 % know that. May significantly increase compile time -- no evidence
 % for that so far.
 %
-%
-%\begin{macro}{fixltx2e.sty}
-%Corrections to \LaTeX\ that will be changed in the next release.
-%    \begin{macrocode}
-\RequirePackage{fixltx2e}
-%    \end{macrocode}
-%\end{macro}
 %
 %\begin{macro}{fixmath.sty}
 %\LaTeX\ does not italicize uppercase Greek letters (e.g. in mathmode); this conflicts
@@ -1840,9 +1835,10 @@ urlcolor=black,%webbrown
 % \subsection{Signatures for Quotes}
 %
 % \begin{macro}{\signed}
-%   To sign codes or the like, command |\signed| puts the author
-%   emphasized in the lower right corner.  On the last line if there
-%   is enough space, on a new line if it is not.
+%   To sign quotes (single paragraph) or quotations (several
+%   paragraphs), the command |\signed| puts the author emphasized in the
+%   lower right corner. On the last line if there is enough space, on
+%   a new line if it is not.
 %    \begin{macrocode}
 \newcommand*{\signed}[1]%
 {\unskip\hspace*{1em plus 1fill}%

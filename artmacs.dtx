@@ -109,6 +109,7 @@
 \newif\ifOptNatbib\OptNatbibtrue
 \newif\ifOptKeywords\OptKeywordstrue
 \newif\ifOptCMFonts\OptCMFontstrue
+\newif\ifOptNgerman\OptNgermanfalse
 
 \newif\ifOptStrict\OptStrictfalse
 
@@ -118,6 +119,7 @@
 \DeclareOption{llncs}{\OptLlncstrue}
 \DeclareOption{classicthesis}{\OptHyperreffalse\OptCMFontsfalse}
 \DeclareOption{numberwithinchapter}{\OptChaptertrue}
+\DeclareOption{ngerman}{\OptNgermantrue}
 
 \DeclareOption{strict}{\OptStricttrue}
 %    \end{macrocode}
@@ -181,13 +183,20 @@
 %
 % \subsection{Language, Fonts and Layout}
 %
-% \DescribeMacro{babel} make english default, but be able to switch to
-% german by |\selectlanguage{ngerman}| and then switch back with
-% |\selectlanguage{english}|. (Alternatives for single words and
+% We always load \DescribeMacro{babel} both english and (n)german. We
+% make english the default (last option) unless, this package loads
+% with option |ngerman|: then ngerman is the default. In either case,
+% you can switch (after |\begin{documents}|) with |\selectlanguage{ngerman}| or
+% |\selectlanguage{english}|, respectively. (Alternatives for single words and
 % blocks are |\foreignlanguage{<language>}{<text>}| and
 % |\begin{otherlanguage*}{<language>} <text> \end{otherlanguage*}|, respectively.)
 %    \begin{macrocode}
-\RequirePackage[ngerman, english]{babel}
+\ifOptNgerman
+\RequirePackage[english,ngerman]{babel}
+\else
+\RequirePackage[ngerman,english]{babel}
+\fi
+\addto\extrasngerman{\sisetup{locale=DE}}
 %    \end{macrocode}
 %
 % \DescribeMacro{fontenc}
@@ -935,15 +944,16 @@ urlcolor=black,%webbrown
 %
 % \subsubsection{physical units}
 %
-% \DescribeMacro{SIunits} Avoid formatting units by hand, better use
-% |$\unit{1,92}{\micro\metre}$|
+% \DescribeMacro{siunitx} Avoid formatting units by hand, better use
+% |$\SI{9,81}{\kilo\gramm\metre / \square\second}$| or |$9.81~\si{\giga\byte}$|
 %    \begin{macrocode}
-\RequirePackage[amssymb,Gray]{SIunits}
+\RequirePackage[binary-units=true]{siunitx}
 %    \end{macrocode}
-% Remark: the option |amssymb| avoids suppresses the conflict with the
-% named package over the command |\square| and the option |Gray| avoids the conflict with the pstricks color |gray|.  \todo{What about
-% typesetting times and dates} At least for the former, there is
-% always the possiblity of |12\textsuperscript{00}| in text mode.
+% Remark: This is the predecessor to the |SIunits|-package. It can
+% respects german localization as we instruct it through a
+% |babel|-hook. \todo{What about typesetting times and dates} At least
+% for the former, there is always the possiblity of
+% |12\textsuperscript{00}| in text mode.
 %
 %
 % \subsubsection{AMS symbols}
@@ -1829,6 +1839,10 @@ urlcolor=black,%webbrown
 % |\presetkeys{todonotes}{inline}{}| work only partially, and anyways,
 % we aren't even certain which result we'd like to have.  So, use
 % |\note{TODO <foo>}| instead.
+%
+% \subsection{use with exam.cls}
+%
+% To load without errors, it is sufficient to choose the |beamer|-option.
 %
 % \section{For your consideration: optional commands}
 %

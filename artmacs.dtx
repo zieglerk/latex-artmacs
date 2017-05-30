@@ -1479,6 +1479,24 @@ urlcolor=black,%webbrown
 %
 %
 %
+% \subsection{submit to PDF eXpress for IEEE}
+%
+% The IEEE sometimes uses PDF eXpress to validate the pdf for the
+% camera-ready version. This requires a version without bookmarks. We obtain this via
+% \begin{verbatim}
+% $ pdftk A=latex-output.pdf cat A1-end output nobookmarks.pdf
+% \end{verbatim}
+%
+%
+% \subsection{convert to IEEEtran.cls for DEW}
+%
+% This class wants captions *before* tables, but *after*
+% figures. Adjust accordingly.
+%
+% \subsection{convert to acmart.cls for ``TARK''}
+%
+%
+%
 % \subsection{convert to llncs.cls for ``Weworc'' and ``Financial
 % Cryptography and Data Security''}
 %

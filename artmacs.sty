@@ -1,0 +1,410 @@
+%%
+%% This is file `artmacs.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% artmacs.dtx  (with options: `package')
+%% 
+%% This is a generated file.
+%% 
+%% Copyright (C) 2008-2016 by Konstantin Ziegler <konstantin.ziegler@landshut.org>
+%% 
+%% This file may be distributed and/or modified under the conditions of
+%% the LaTeX Project Public License, either version 1.2 of this license
+%% or (at your option) any later version.  The latest version of this
+%% license is in:
+%% 
+%%    http://www.latex-project.org/lppl.txt
+%% 
+%% and version 1.2 or later is part of all distributions of LaTeX version
+%% 1999/12/01 or later.
+%% 
+\NeedsTeXFormat{LaTeX2e}[2003/12/01]
+\ProvidesPackage{artmacs}
+  [2014/11/27 v0.2.11 macro collection for article class]
+\newif\ifOptBeamer\OptBeamerfalse
+\newif\ifOptLlncs\OptLlncsfalse
+\newif\ifOptSigAlterFix\OptSigAlterFixfalse
+\newif\ifOptChapter\OptChapterfalse
+
+\newif\ifOptThm\OptThmtrue
+\newif\ifOptGraphicx\OptGraphicxtrue
+\newif\ifOptHyperref\OptHyperreftrue
+\newif\ifOptNatbib\OptNatbibtrue
+\newif\ifOptKeywords\OptKeywordstrue
+\newif\ifOptCMFonts\OptCMFontstrue
+\newif\ifOptNgerman\OptNgermanfalse
+
+\newif\ifOptStrict\OptStrictfalse
+
+\DeclareOption{beamer}{\OptBeamertrue\OptThmfalse\OptKeywordsfalse\OptHyperreffalse\OptCMFontsfalse\OptGraphicxfalse}
+\DeclareOption{elsarticle}{\OptNatbibfalse\OptGraphicxfalse}
+\DeclareOption{sig-alternate}{\OptKeywordsfalse\OptSigAlterFixtrue}
+\DeclareOption{llncs}{\OptLlncstrue}
+\DeclareOption{classicthesis}{\OptHyperreffalse\OptCMFontsfalse}
+\DeclareOption{numberwithinchapter}{\OptChaptertrue}
+\DeclareOption{ngerman}{\OptNgermantrue}
+
+\DeclareOption{strict}{\OptStricttrue}
+\ProcessOptions\relax
+
+\ifOptBeamer
+\RequirePackage{etex}
+\reserveinserts{28}
+\fi
+\ifOptStrict
+\RequirePackage[l2tabu,orthodox,abort]{nag}
+\else
+\RequirePackage[l2tabu,orthodox]{nag}
+\fi
+\newcommand*{\mysetminusD}{\hbox{\tikz{\draw[line width=0.06em,line cap=round] (0.3em,0) -- (0,0.6em);}}}
+\newcommand*{\mysetminusT}{\mysetminusD}
+\newcommand*{\mysetminusS}{\hbox{\tikz{\draw[line width=0.045em,line cap=round] (0.2em,0) -- (0,0.4em);}}}
+\newcommand*{\mysetminusSS}{\hbox{\tikz{\draw[line width=0.04em,line cap=round] (0.15em,0) -- (0,0.3em);}}}
+
+\newcommand*{\mysetminus}{\mathbin{\mathchoice{\mysetminusD}{\mysetminusT}{\mysetminusS}{\mysetminusSS}}}
+
+\ObsoleteCS[ugly]{setminus}{\protect\mysetminus}
+\ObsoleteCS[ugly]{emptyset}{\protect\varnothing}
+\ObsoleteCS[bad style]{len}{\protect\abs}
+\ifOptStrict
+\RequirePackage[all, error]{onlyamsmath}
+\else
+\RequirePackage[all, warning]{onlyamsmath}
+\fi
+\ifOptNgerman
+\RequirePackage[english,ngerman]{babel}
+\else
+\RequirePackage[ngerman,english]{babel}
+\fi
+\addto\extrasngerman{\sisetup{locale=DE}}
+\RequirePackage[T1]{fontenc}
+\ifOptCMFonts
+\RequirePackage{lmodern}
+\else
+\ifOptBeamer
+\RequirePackage[scaled]{helvet}
+\fi
+\fi
+\ifOptBeamer
+\else
+\RequirePackage[svgnames]{xcolor}
+\fi
+\ifOptGraphicx
+\RequirePackage[final]{graphicx}
+\else
+\fi
+\ifOptBeamer
+\else
+\ifOptLlncs
+\RequirePackage[linecolor=black,backgroundcolor=white,textsize=tiny,obeyDraft,obeyFinal]{todonotes}
+\else
+\RequirePackage[linecolor=black,backgroundcolor=white,textsize=tiny,textwidth=2.5\marginparwidth,obeyDraft,obeyFinal]{todonotes}
+\fi
+\fi
+\RequirePackage{tikz}
+\makeatletter
+\let\@@tikzpicture\tikzpicture
+\def\tikzpicture{\catcode`\$=3 \@@tikzpicture}
+\makeatother
+\RequirePackage[notref,notcite]{showkeys}
+\RequirePackage[scrtime]{prelim2e}
+\renewcommand*{\PrelimWords}{Draft (\jobname)}
+\RequirePackage{amsmath}
+
+\ifOptThm
+\ifOptLlncs
+\else
+\ifOptChapter
+\numberwithin{equation}{chapter}
+\numberwithin{figure}{chapter}
+\numberwithin{table}{chapter}
+\else
+\numberwithin{equation}{section}
+\numberwithin{figure}{section}
+\numberwithin{table}{section}
+\fi
+
+\makeatletter
+\let\c@figure\c@equation
+\let\c@table\c@equation
+\makeatother
+\fi
+
+\let\proof\relax
+\let\endproof\relax
+
+\ifOptLlncs
+\makeatletter
+\let\c@corollary\c@equation
+\let\c@lemma\c@equation
+\let\c@proposition\c@equation
+\let\c@theorem\c@equation
+\let\c@conjecture\c@equation
+\let\c@definition\c@equation
+
+\let\c@example\c@equation
+
+\let\c@remark\c@equation
+\makeatother
+
+\spnewtheorem{fact}[theorem]{Fact}{\bfseries}{\itshape}
+\spnewtheorem{assumption}[theorem]{Assumption}{\bfseries}{\itshape}
+
+\spnewtheorem{openquestion}[theorem]{Open Question}{\bfseries}{\rmfamily}
+
+\else
+\RequirePackage{amsthm}
+\RequirePackage{thmtools}
+
+ % default style=plain
+\declaretheorem[sibling=equation]{claim}
+\declaretheorem[sibling=equation]{corollary}
+\declaretheorem[sibling=equation]{conjecture}
+\declaretheorem[sibling=equation]{fact}
+\declaretheorem[sibling=equation]{lemma}
+\declaretheorem[sibling=equation]{proposition}
+\declaretheorem[sibling=equation]{theorem}
+
+\declaretheorem[sibling=equation, style=definition]{assumption}
+\declaretheorem[sibling=equation, style=definition]{definition}
+
+\declaretheorem[sibling=equation, style=remark]{example}
+\declaretheorem[sibling=equation, style=remark]{remark}
+\declaretheorem[sibling=equation, style=remark, name=Open Question]{openquestion}
+\fi
+
+\fi
+
+
+\ifOptKeywords
+\newenvironment*{keywords}{\textbf{Keywords.}}{}
+\newenvironment*{AMS}{\textbf{2010 Mathematics Subject
+    Classification.}}{}
+\fi
+\allowdisplaybreaks[4]
+
+\RequirePackage{mathtools}
+\mathtoolsset{showonlyrefs, showmanualtags, mathic}
+\PassOptionsToPackage{hyphens}{url}
+
+\ifOptHyperref
+\RequirePackage[
+final,
+pdfpagelabels=true,    % rumor has it: beamer does not like that
+]
+{hyperref}
+
+\else
+\RequirePackage{bookmark}
+
+\fi
+
+\hypersetup{%
+linktocpage=false,    % headlines (not page numbers) are links
+pdfborder={0 0 0},    % no boxes around links
+breaklinks=true,      % linebreak -- otherwise ugly
+bookmarksnumbered=true,
+pdfstartpage=3, pdfstartview=FitV,%
+    pdfpagemode=UseNone, pageanchor=true, pdfpagemode=UseOutlines,%
+    plainpages=false, bookmarksopen=true, bookmarksopenlevel=1,%
+    hypertexnames=true, pdfhighlight=/O,%nesting=true,%frenchlinks,%
+}
+
+\hypersetup{
+colorlinks=true,%
+linkcolor=black,%RoyalBlue
+citecolor=black,%webgreen
+filecolor=black,%
+urlcolor=black,%webbrown
+}
+
+\DeclareUrlCommand\email{\urlstyle{tt}}
+\DeclareUrlCommand\directory{\urlstyle{tt}}
+
+\makeatletter
+\newcommand*{\pdftitle}[1]{\gdef\@pdftitle{#1}}
+\newcommand*{\pdfauthor}[1]{\gdef\@pdfauthor{#1}}
+\newcommand*{\pdfkeywords}[1]{\gdef\@pdfkeywords{#1}}
+\AtBeginDocument{
+  \hypersetup{
+    pdftitle = {\@pdftitle},
+    pdfauthor = {\@pdfauthor},
+    pdfkeywords = {\@pdfkeywords},
+    pdfsubject = {\@pdfkeywords}
+  }
+}
+\makeatother
+
+\addto\extrasenglish{%
+  \def\sectionautorefname{Section}%
+  \def\subsectionautorefname{Subsection}%
+  \def\chapterautorefname{Chapter}%
+  \def\algorithmautorefname{Algorithm}%
+  \def\subfigureautorefname{\figureautorefname}
+}
+\ifOptNatbib
+\RequirePackage[round,longnamesfirst,sort,comma]{natbib}
+\fi
+\DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+\DeclarePairedDelimiter{\floor}{\lfloor}{\rfloor}
+\DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
+\RequirePackage{stmaryrd}
+\newcommand*{\bbracket}[1]{\left\llbracket #1 \right\rrbracket}
+
+\RequirePackage{braket}
+\RequirePackage[binary-units=true]{siunitx}
+\RequirePackage{amssymb, amsfonts, amsxtra}
+\newcommand*{\BB}{\mathbb{B}}
+\newcommand*{\CC}{\mathbb{C}}
+\newcommand*{\FF}{\mathbb{F}}
+\newcommand*{\Fp}{\mathbb{F}_{p}}
+\newcommand*{\Fpx}{\mathbb{F}_{p}^{\times}}
+\newcommand*{\Fq}{\mathbb{F}_{q}}
+\newcommand*{\Fqx}{\mathbb{F}_{q}^{\times}}
+\newcommand*{\Fqbar}{\overline{\Fq}}
+\newcommand*{\Fr}{\mathbb{F}_{r}}
+\newcommand*{\Frx}{\mathbb{F}_{r}^{\times}}
+\newcommand*{\MM}{\mathsf{M}}
+\newcommand*{\NN}{\mathbb{N}}
+\newcommand*{\PP}{\mathbb{P}}
+\newcommand*{\QQ}{\mathbb{Q}}
+\newcommand*{\RR}{\mathbb{R}}
+\newcommand*{\ZZ}{\mathbb{Z}}
+
+\DeclareMathOperator{\im}{im}
+\DeclareMathOperator{\codim}{codim}
+\DeclareMathOperator{\id}{id}
+\DeclareMathOperator{\Gal}{Gal}
+\newcommand*{\prob}[2][]{\operatorname{prob}_{#1} \{ #2 \}}
+\newcommand*{\jacobi}[2]{\left( \frac{#1}{#2} \right)}
+\DeclareMathOperator{\chara}{char}
+\newcommand*{\bigOh}[1]{O(#1)}
+\newcommand*{\smalloh}[1]{o(#1)}
+\newcommand*{\softOh}[1]{O\sptilde(#1)}
+\newcommand*{\dcup}{\mathbin{\dot{\cup}}}
+\newcommand*{\rgets}{\stackrel{\$}{\gets}}
+\newcommand*{\iso}{\cong}
+\DeclareMathOperator{\ord}{ord}
+\DeclareMathOperator{\mult}{mult}
+\DeclareMathOperator{\lc}{lc}
+\DeclareMathOperator{\lcm}{lcm}
+\DeclareMathOperator{\loglog}{loglog}
+\DeclareMathOperator{\dlog}{dlog}
+\DeclareMathOperator{\gen}{keygen}
+\DeclareMathOperator{\enc}{enc}
+\DeclareMathOperator{\dec}{dec}
+\DeclareMathOperator{\ver}{ver}
+\DeclareMathOperator{\sig}{sig}
+\DeclareMathOperator{\adv}{adv}
+\RequirePackage{xspace}
+\newcommand*{\TA}{\textsc{Trusted Authority}\xspace}
+\newcommand*{\Alice}{\textsc{Alice}\xspace}
+\newcommand*{\Bob}{\textsc{Bob}\xspace}
+\newcommand*{\Charlie}{\textsc{Charlie}\xspace}
+\newcommand*{\Eve}{\textsc{Eve}\xspace}
+\RequirePackage[final]{listings}
+\lstset{breaklines=true}
+
+\ifOptBeamer\else
+\RequirePackage[linesnumbered,vlined,ruled,algo2e,algosection]{algorithm2e}
+\SetKwInput{Input}{Input}    % use as \Input{bar} and \Output{foo}
+\SetKwInput{Output}{Output}  % ... and finish with \Return foo\;
+\SetKw{To}{to}    % we want lowercase for this keyword
+\SetKw{break}{break}    % should also be a keyword
+\DontPrintSemicolon
+\renewcommand*{\AlgoLineautorefname}{step}
+\ifOptSigAlterFix
+\setlength{\algomargin}{2em}
+\fi
+
+\RequirePackage{etoolbox}
+\AtBeginEnvironment{algorithm2e}{
+\stepcounter{equation}
+}
+\SetAlgoRefName{\theequation}
+
+\newenvironment*{algorithm2f}{
+\begin{algorithm2e}
+}{
+\end{algorithm2e}
+}
+
+\newenvironment*{problem2e}[1][htbp]{
+\begin{algorithm2e}[#1]
+\addtocounter{equation}{1}
+\SetAlgoRefName{\theequation}
+\SetAlgorithmName{Problem}{Problem}{Problem}
+}{
+\end{algorithm2e}
+}
+\fi
+
+
+\RequirePackage{array}
+\setlength{\extrarowheight}{1pt}
+\newcolumntype{L}{>{$} l <{$}}
+\newcolumntype{C}{>{$} c <{$}}
+\newcolumntype{R}{>{$} r <{$}}
+\RequirePackage{booktabs}
+\RequirePackage{comment}
+\def\CommentCutFile{\jobname.comment}
+\RequirePackage{microtype}
+\RequirePackage{fixmath}
+\ifOptBeamer\else
+\RequirePackage{enumitem}
+\newlist{alnumerate}{enumerate}{1}
+\setlist[alnumerate,1]{label=(\alph*)}
+\newlist{ronumerate}{enumerate}{1}
+\setlist[ronumerate,1]{label=(\roman*)}
+\fi
+\ifOptLlncs
+\makeatletter
+\renewcommand\bibsection%
+{
+  \section*{\refname
+    \@mkboth{\MakeUppercase{\refname}}{\MakeUppercase{\refname}}}
+}
+\makeatother
+\fi
+\ifOptLlncs
+\setcounter{tocdepth}{2}
+
+\makeatletter
+\renewcommand*\l@author[2]{}
+\renewcommand*\l@title[2]{}
+\newcommand*{\authcount}[1]{}
+\renewcommand*{\tableofcontents}{
+\makeatletter
+\@starttoc{toc}
+\makeatother
+}
+\makeatother
+\fi
+
+
+
+
+\ifOptBeamer
+\makeatletter
+\def\pdftex@driver{pdftex.def}
+\ifx\Gin@driver\pdftex@driver
+  \def\pgfsys@color@unstacked#1{%
+    \pdfliteral{\csname\string\color@#1\endcsname}%
+  }
+\fi
+\makeatother
+\fi
+
+\newcommand*{\signed}[1]%
+{\unskip\hspace*{1em plus 1fill}%
+  \nolinebreak[3]\hspace*{\fill}\mbox{\emph{#1}}}
+\def\itemMath#1{%
+\raisebox{-\abovedisplayshortskip}{%
+\parbox{0.75\linewidth}{%
+\begin{equation}#1\end{equation}}}}
+\endinput
+%%
+%% End of file `artmacs.sty'.

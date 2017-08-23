@@ -1391,7 +1391,7 @@ urlcolor=black,%webbrown
 %
 % \subsection{Shipping the sources}
 % \begin{enumerate}
-% \item add |\pdfoutput=1| to the first line of
+% \item \label{item:1} add |\pdfoutput=1| to the first line of
 % <file>.tex
 % \item minimal cleanup: remove emacs backup file |<file>.tex~|, since
 %   it will be automatically renamed after unpacking and processed as
@@ -1458,7 +1458,7 @@ urlcolor=black,%webbrown
 % (when uploading .tar.gz).
 % \begin{enumerate}
 % \item check before submission as above
-% \item ship sources as tar, see above
+% \item \label{item:3} ship sources as tar, see above
 % \item arxiv processes after decompressing:
 % \begin{itemize}
 % \item discards unnecessary auxiliary files (basically all of type ``unknown'')
@@ -1467,7 +1467,7 @@ urlcolor=black,%webbrown
 %   you probably missed step \ref{item:1} above.
 % \end{itemize}
 % \item Check the output -- if there are twice as many pages, restart
-% from step \label{item:3}.
+% from step \ref{item:3}.
 % \item if yet to appear, then add comment ``to appear in
 % <journal>''  (starts with lowercase; terminates without full stop)
 % -- CAVE: this can only be changed by generating a new version

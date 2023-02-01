@@ -1,6 +1,6 @@
 % \iffalse meta-comment
 %
-% Copyright (C) 2009-2014 by Konstantin Ziegler <konstantin.ziegler@landshut.org>
+% Copyright (C) 2009-2023 by Konstantin Ziegler <mail@zieglerk.net>
 % -------------------------------------------------------------------------------
 %
 % This file may be distributed and/or modified under the conditions of
@@ -22,7 +22,7 @@
 %<package>\NeedsTeXFormat{LaTeX2e}[2003/12/01]
 %<package>\ProvidesPackage{artmacs}
 %<*package>
-  [2014/11/27 v0.2.11 macro collection for article class]
+  [2023/02/01 v0.23.01 macro collection for article class]
 %</package>
 %
 %<*driver>
@@ -57,6 +57,8 @@
 % \changes{v0.2.2}{2010/02/14}{added some frequently used macros and packages}
 % \changes{v0.2.3}{2011/11/22}{added allowdisplaybreaks}
 % \changes{v0.2.11}{2014/11/27}{remove backrefs}
+% \changes{v0.23.02}{2023/02/01}{remove loading of etex.sty, because
+% that's part of LaTeX since 2015}
 %
 % \GetFileInfo{artmacs.dtx}
 %
@@ -126,11 +128,6 @@
 % Now, all options are defined.  We execute the default options.
 %    \begin{macrocode}
 \ProcessOptions\relax
-
-\ifOptBeamer
-\RequirePackage{etex}
-\reserveinserts{28}
-\fi
 %    \end{macrocode}
 %
 %
@@ -1806,9 +1803,6 @@ urlcolor=black,%webbrown
 %
 % Paste content of current artmacs.sty
 % comment hyperref, since loaded automatically
-% add |\usepackage{etex}| (to extend the register, s.t. pstricks has
-% enough room) and |\reserveinserts{25}| for more space (also
-% sometimes 50, forgotten why),
 % comment enumitem, since beamer has its own special itemize- and
 % enumerate-environments;  in particular they take the optional
 % argument |[<+->]| to uncover |item| by |item| (avoiding several
